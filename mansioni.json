@@ -18,13 +18,13 @@
               "id": "primo_cuoco",
               "label": "Primo Cuoco",
               "livello_anpit": "B2",
-              "livello_confcommercio": "4"
+              "livello_confcommercio": "3"
             },
             {
               "id": "secondo_cuoco",
               "label": "Secondo Cuoco",
               "livello_anpit": "C1",
-              "livello_confcommercio": "5"
+              "livello_confcommercio": "4"
             },
             {
               "id": "aiuto_cuoco",
@@ -150,13 +150,13 @@
               "id": "primo_cuoco",
               "label": "Primo Cuoco",
               "livello_anpit": "B2",
-              "livello_confcommercio": "4"
+              "livello_confcommercio": "3"
             },
             {
               "id": "secondo_cuoco",
               "label": "Secondo Cuoco",
               "livello_anpit": "C1",
-              "livello_confcommercio": "5"
+              "livello_confcommercio": "4"
             },
             {
               "id": "aiuto_cuoco",
@@ -216,13 +216,13 @@
               "id": "addetto_pulizia_camere",
               "label": "Addetto Pulizia Camere",
               "livello_anpit": "D2",
-              "livello_confcommercio": "7"
+              "livello_confcommercio": "6"
             },
             {
               "id": "addetto_pulizia_hotel",
               "label": "Addetto Pulizia Hotel",
               "livello_anpit": "D2",
-              "livello_confcommercio": "7"
+              "livello_confcommercio": "6"
             }
           ]
         },
@@ -234,19 +234,19 @@
               "id": "capo_manutentore",
               "label": "Capo Manutentore",
               "livello_anpit": "B2",
-              "livello_confcommercio": "5"
+              "livello_confcommercio": "4"
             },
             {
               "id": "manutentore",
               "label": "Manutentore",
               "livello_anpit": "C1",
-              "livello_confcommercio": "6"
+              "livello_confcommercio": "5"
             },
             {
               "id": "giardiniere",
               "label": "Giardiniere",
               "livello_anpit": "D1",
-              "livello_confcommercio": "6"
+              "livello_confcommercio": "5"
             }
           ]
         },
