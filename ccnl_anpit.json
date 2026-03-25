@@ -1,0 +1,290 @@
+{
+  "nome": "CCNL ANPIT Turismo",
+  "decorrenza": "2026-04-01",
+  "mensilita": 13,
+  "livelli": {
+    "Quadro": {
+      "minimo": 2731.21,
+      "immc": 140.0
+    },
+    "A1": {
+      "minimo": 2374.96,
+      "immc": 121.0
+    },
+    "A2": {
+      "minimo": 2078.09,
+      "immc": 106.0
+    },
+    "B1": {
+      "minimo": 1899.96,
+      "immc": 98.0
+    },
+    "B2": {
+      "minimo": 1721.85,
+      "immc": 88.0
+    },
+    "C1": {
+      "minimo": 1548.91,
+      "immc": 80.0
+    },
+    "C2": {
+      "minimo": 1427.57,
+      "immc": 73.0
+    },
+    "D1": {
+      "minimo": 1308.82,
+      "immc": 67.0
+    },
+    "D2": {
+      "minimo": 1187.48,
+      "immc": 61.0
+    }
+  },
+  "epmr": {
+    "Quadro": {
+      "Lombardia": 207.73,
+      "Liguria": 197.28,
+      "Trentino_AA": 195.97,
+      "Lazio": 191.4,
+      "Toscana": 187.48,
+      "Emilia_R": 172.45,
+      "Friuli": 164.61,
+      "Umbria": 156.12,
+      "Valle_dA": 156.12,
+      "Piemonte": 146.97,
+      "Veneto": 122.14,
+      "Marche": 94.05,
+      "Altre": 65.96
+    },
+    "A1": {
+      "Lombardia": 182.15,
+      "Liguria": 173.08,
+      "Trentino_AA": 171.95,
+      "Lazio": 167.98,
+      "Toscana": 164.58,
+      "Emilia_R": 151.55,
+      "Friuli": 144.75,
+      "Umbria": 137.38,
+      "Valle_dA": 137.38,
+      "Piemonte": 129.45,
+      "Veneto": 107.92,
+      "Marche": 83.56,
+      "Altre": 59.19
+    },
+    "A2": {
+      "Lombardia": 164.24,
+      "Liguria": 156.14,
+      "Trentino_AA": 155.13,
+      "Lazio": 151.59,
+      "Toscana": 148.55,
+      "Emilia_R": 136.92,
+      "Friuli": 130.85,
+      "Umbria": 124.27,
+      "Valle_dA": 124.27,
+      "Piemonte": 117.19,
+      "Veneto": 97.97,
+      "Marche": 76.21,
+      "Altre": 54.46
+    },
+    "B1": {
+      "Lombardia": 148.89,
+      "Liguria": 141.63,
+      "Trentino_AA": 140.72,
+      "Lazio": 137.54,
+      "Toscana": 134.82,
+      "Emilia_R": 124.38,
+      "Friuli": 118.93,
+      "Umbria": 113.03,
+      "Valle_dA": 113.03,
+      "Piemonte": 106.68,
+      "Veneto": 89.43,
+      "Marche": 69.92,
+      "Altre": 50.4
+    },
+    "B2": {
+      "Lombardia": 134.39,
+      "Liguria": 127.91,
+      "Trentino_AA": 127.11,
+      "Lazio": 124.27,
+      "Toscana": 121.84,
+      "Emilia_R": 112.54,
+      "Friuli": 107.68,
+      "Umbria": 102.42,
+      "Valle_dA": 102.42,
+      "Piemonte": 96.75,
+      "Veneto": 81.37,
+      "Marche": 63.97,
+      "Altre": 46.57
+    },
+    "C1": {
+      "Lombardia": 121.6,
+      "Liguria": 115.82,
+      "Trentino_AA": 115.09,
+      "Lazio": 112.56,
+      "Toscana": 110.4,
+      "Emilia_R": 102.09,
+      "Friuli": 97.75,
+      "Umbria": 93.05,
+      "Valle_dA": 93.05,
+      "Piemonte": 87.99,
+      "Veneto": 74.26,
+      "Marche": 58.72,
+      "Altre": 43.19
+    },
+    "C2": {
+      "Lombardia": 113.07,
+      "Liguria": 107.75,
+      "Trentino_AA": 107.09,
+      "Lazio": 104.76,
+      "Toscana": 102.76,
+      "Emilia_R": 95.12,
+      "Friuli": 91.13,
+      "Umbria": 86.81,
+      "Valle_dA": 86.81,
+      "Piemonte": 82.15,
+      "Veneto": 69.52,
+      "Marche": 55.23,
+      "Altre": 40.93
+    },
+    "D1": {
+      "Lombardia": 105.4,
+      "Liguria": 100.49,
+      "Trentino_AA": 99.88,
+      "Lazio": 97.73,
+      "Toscana": 95.9,
+      "Emilia_R": 88.85,
+      "Friuli": 85.17,
+      "Umbria": 81.19,
+      "Valle_dA": 81.19,
+      "Piemonte": 76.9,
+      "Veneto": 65.25,
+      "Marche": 52.08,
+      "Altre": 38.9
+    },
+    "D2": {
+      "Lombardia": 100.28,
+      "Liguria": 95.65,
+      "Trentino_AA": 95.08,
+      "Lazio": 93.05,
+      "Toscana": 91.32,
+      "Emilia_R": 84.67,
+      "Friuli": 81.2,
+      "Umbria": 77.44,
+      "Valle_dA": 77.44,
+      "Piemonte": 73.39,
+      "Veneto": 62.41,
+      "Marche": 49.98,
+      "Altre": 37.55
+    }
+  },
+  "contributi_dipendente": {
+    "aliquota_totale": 0.0929,
+    "note": "IVS 9,19% + quota aggiuntiva 0,10%"
+  },
+  "contributi_azienda": {
+    "inps_ti": 0.3,
+    "inps_td": 0.314,
+    "inail": 0.011,
+    "note_inail": "Aliquota media indicativa - verificare con INAIL"
+  },
+  "enbic": {
+    "dipendente_td": 1.5,
+    "dipendente_ti": 2.5,
+    "azienda_td": 4.5,
+    "azienda_ti": 21.5,
+    "note": "Non proporzionato al part-time"
+  },
+  "welfare_azienda": {
+    "importo_mensile": 20.0,
+    "note": "Fisso mensile, non proporzionato al part-time"
+  },
+  "tfr": {
+    "formula": "RLT / 12 * 13 / 13.5",
+    "moltiplicatore_mensilita": 13,
+    "divisore": 13.5
+  },
+  "ferie": {
+    "ore_annue": 160,
+    "divisore_orario": 173,
+    "formula": "(RLT + INPS_azienda) / 173 * 160 / 12"
+  },
+  "permessi": {
+    "ore_annue": 48,
+    "divisore_orario": 173,
+    "formula": "(RLT + INPS_azienda) / 173 * 48 / 12"
+  },
+  "tredicesima": {
+    "formula_rateo": "(RLT + INPS_azienda + INAIL_azienda) / 12"
+  },
+  "irpef": {
+    "scaglioni_mensili": [
+      {
+        "da": 0,
+        "a": 2333.33,
+        "aliquota": 0.23
+      },
+      {
+        "da": 2333.34,
+        "a": 4166.66,
+        "aliquota": 0.33,
+        "note": "sul solo eccedente"
+      },
+      {
+        "da": 4166.67,
+        "a": null,
+        "aliquota": 0.43,
+        "note": "sul solo eccedente"
+      }
+    ]
+  },
+  "detrazioni_lavoro_dipendente": {
+    "fascia_1": {
+      "fino_a": 15000,
+      "importo_annuo": 1955
+    },
+    "fascia_2": {
+      "da": 15001,
+      "a": 28000,
+      "formula": "1910 + 1190 * (28000 - reddito) / 13000"
+    },
+    "fascia_3": {
+      "da": 28001,
+      "a": 50000,
+      "formula": "1910 * (50000 - reddito) / 22000"
+    },
+    "fascia_4": {
+      "oltre": 50000,
+      "importo_annuo": 0
+    },
+    "minimo_garantito_ti": 690,
+    "minimo_garantito_td": 1380,
+    "conversione_mensile": "annua / 365 * 30"
+  },
+  "ulteriori_detrazioni": {
+    "fascia_1": {
+      "da": 20000,
+      "a": 32000,
+      "importo_annuo": 1000
+    },
+    "fascia_2": {
+      "da": 32001,
+      "a": 40000,
+      "formula": "1000 * (40000 - reddito) / 8000"
+    },
+    "fascia_3": {
+      "oltre": 40000,
+      "importo_annuo": 0
+    }
+  },
+  "bonus_fiscali": {
+    "no_tax_area_soglia_annua": 8500,
+    "renzi": {
+      "soglia_flat_100": 15000,
+      "coeff_fino_8500": 0.071,
+      "coeff_fino_15000": 0.053,
+      "coeff_fino_20000": 0.048,
+      "oltre_20000": 0,
+      "note": "Sotto 8500 annui: no IRPEF, no bonus. Tra 8501-15000: 100 euro fissi. Tra 15001-20000: imponibile*coeff/12"
+    }
+  }
+}

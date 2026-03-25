@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RistoHR — Calcolo Busta Paga</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary: #C45C26;
+    --primary-dark: #A34A1E;
+    --primary-light: #E8855A;
+    --primary-bg: #FDF3EE;
+    --accent: #F0A06A;
+    --text: #1A1A1A;
+    --text-muted: #6B6B6B;
+    --border: #E2D6CF;
+    --white: #FFFFFF;
+    --success: #2E7D32;
+    --success-bg: #F0F7F0;
+    --card-shadow: 0 4px 24px rgba(196,92,38,0.10);
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #F7EDE4;
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--primary);
+    color: white;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 2px 12px rgba(196,92,38,0.25);
+  }
+  header .logo-icon {
+    font-size: 28px;
+  }
+  header h1 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+  header p {
+    font-size: 0.78rem;
+    opacity: 0.85;
+    font-weight: 400;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+  }
+
+  /* Progress bar */
+  .progress-wrap {
+    background: white;
+    border-radius: var(--radius);
+    padding: 20px 28px;
+    margin-bottom: 24px;
+    box-shadow: var(--card-shadow);
+  }
+  .progress-steps {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+  .progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
+  }
+  .progress-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    width: 100%;
+    height: 2px;
+    background: var(--border);
+    z-index: 0;
+  }
+  .progress-step.done:not(:last-child)::after,
+  .progress-step.active:not(:last-child)::after {
+    background: var(--primary-light);
+  }
+  .step-dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--border);
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s;
+  }
+  .progress-step.done .step-dot {
+    background: var(--primary);
+    color: white;
+  }
+  .progress-step.active .step-dot {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 0 0 4px rgba(196,92,38,0.2);
+  }
+  .step-label {
+    font-size: 0.62rem;
+    color: var(--text-muted);
+    margin-top: 5px;
+    text-align: center;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .progress-step.active .step-label,
+  .progress-step.done .step-label {
+    color: var(--primary);
+  }
+
+  /* Card */
+  .card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--card-shadow);
+    padding: 32px;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-bottom: 6px;
+  }
+  .card-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+
+  /* Option grid */
+  .option-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 14px;
+  }
+  .option-btn {
+    border: 2px solid var(--border);
+    background: white;
+    border-radius: var(--radius-sm);
+    padding: 18px 14px;
+    cursor: pointer;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--text);
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .option-btn:hover {
+    border-color: var(--primary-light);
+    background: var(--primary-bg);
+    color: var(--primary-dark);
+  }
+  .option-btn.selected {
+    border-color: var(--primary);
+    background: var(--primary-bg);
+    color: var(--primary-dark);
+    box-shadow: 0 2px 8px rgba(196,92,38,0.15);
+  }
+  .option-btn .opt-icon {
+    font-size: 1.6rem;
+  }
+
+  /* Form fields */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  @media (max-width: 560px) {
+    .form-grid { grid-template-columns: 1fr; }
+  }
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .form-group.full { grid-column: 1 / -1; }
+  label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  select, input[type="number"] {
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.92rem;
+    color: var(--text);
+    background: white;
+    outline: none;
+    transition: border 0.2s;
+  }
+  select:focus, input[type="number"]:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(196,92,38,0.12);
+  }
+
+  /* Toggle switch */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--primary-bg);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    border: 1.5px solid var(--border);
+  }
+  .toggle-label {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .toggle {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute;
+    inset: 0;
+    background: var(--border);
+    border-radius: 24px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  .slider::before {
+    content: '';
+    position: absolute;
+    width: 18px; height: 18px;
+    left: 3px; top: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.3s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+  input:checked + .slider { background: var(--primary); }
+  input:checked + .slider::before { transform: translateX(20px); }
+
+  /* Radio group */
+  .radio-group {
+    display: flex;
+    gap: 10px;
+  }
+  .radio-btn {
+    flex: 1;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    text-align: center;
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .radio-btn:has(input:checked) {
+    border-color: var(--primary);
+    background: var(--primary-bg);
+    color: var(--primary-dark);
+  }
+  .radio-btn input { display: none; }
+
+  /* Navigation */
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 28px;
+  }
+  .btn {
+    padding: 11px 28px;
+    border-radius: var(--radius-sm);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+  }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-secondary {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1.5px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* RESULTS */
+  .results-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 640px) {
+    .results-grid { grid-template-columns: 1fr; }
+  }
+  .result-card {
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+  }
+  .result-card-header {
+    padding: 20px 22px 16px;
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+  }
+  .result-card.azienda .result-card-header {
+    background: linear-gradient(135deg, #C45C26, #A34A1E);
+    color: white;
+  }
+  .result-card.netto .result-card-header {
+    background: linear-gradient(135deg, #2E7D32, #1B5E20);
+    color: white;
+  }
+  .result-card-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.85;
+  }
+  .result-card-total {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -1px;
+  }
+  .result-card-sublabel {
+    font-size: 0.75rem;
+    opacity: 0.75;
+    margin-left: auto;
+    align-self: flex-end;
+    padding-bottom: 2px;
+  }
+  .result-card-body {
+    background: white;
+    padding: 16px 22px;
+  }
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0;
+    font-size: 0.85rem;
+    border-bottom: 1px solid #F5EDE8;
+  }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-row.total {
+    font-weight: 700;
+    font-size: 0.92rem;
+    border-top: 2px solid var(--border);
+    margin-top: 4px;
+    padding-top: 10px;
+    border-bottom: none;
+  }
+  .detail-row .label { color: var(--text-muted); }
+  .detail-row .value { font-weight: 500; color: var(--text); }
+  .detail-row.negative .value { color: #C62828; }
+  .detail-row.positive .value { color: #2E7D32; }
+
+  /* Summary bar */
+  .summary-bar {
+    background: var(--primary-bg);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 18px;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    margin-bottom: 20px;
+  }
+  .summary-bar strong { color: var(--primary-dark); }
+
+  /* Disclaimer */
+  .disclaimer {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    padding: 16px;
+    border-top: 1px solid var(--border);
+    margin-top: 8px;
+  }
+
+  /* Loading */
+  .loading {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 14px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Error */
+  .error-box {
+    background: #FFF3F3;
+    border: 1.5px solid #FFCDD2;
+    border-radius: var(--radius-sm);
+    padding: 16px 20px;
+    color: #C62828;
+    font-size: 0.88rem;
+  }
+
+  /* Utility */
+  .hidden { display: none !important; }
+  .spacer { height: 12px; }
+
+  /* Responsive tweaks */
+  @media (max-width: 480px) {
+    .card { padding: 22px 18px; }
+    .step-label { display: none; }
+    header h1 { font-size: 1.1rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo-icon">🍽</span>
+  <div>
+    <h1>RistoHR — Calcolo Busta Paga</h1>
+    <p>Stima costo azienda e netto dipendente per la ristorazione italiana</p>
+  </div>
+</header>
+
+<div class="container">
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    Caricamento dati contrattuali...
+  </div>
+  <div id="error-box" class="error-box hidden"></div>
+  <div id="app" class="hidden">
+    <!-- Progress bar -->
+    <div class="progress-wrap">
+      <div class="progress-steps" id="progress-steps"></div>
+    </div>
+    <!-- Steps -->
+    <div id="step-container"></div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+let DATA = { mansioni: null, anpit: null, confcommercio: null };
+
+const STEPS = [
+  { id: 'settore',   label: 'Settore' },
+  { id: 'area',      label: 'Area' },
+  { id: 'mansione',  label: 'Mansione' },
+  { id: 'ccnl',      label: 'CCNL' },
+  { id: 'parametri', label: 'Contratto' },
+  { id: 'risultati', label: 'Risultati' },
+];
+
+const REGIONI_LABEL = {
+  Lombardia:   'Lombardia',
+  Liguria:     'Liguria',
+  Trentino_AA: 'Trentino-Alto Adige',
+  Lazio:       'Lazio',
+  Toscana:     'Toscana',
+  Emilia_R:    'Emilia-Romagna',
+  Friuli:      'Friuli-Venezia Giulia',
+  Umbria:      'Umbria',
+  Valle_dA:    "Valle d'Aosta",
+  Piemonte:    'Piemonte',
+  Veneto:      'Veneto',
+  Marche:      'Marche',
+  Altre:       'Altre Regioni',
+};
+
+let state = {
+  step: 0,
+  settore: null,
+  area: null,
+  mansione: null,
+  ccnl: null,
+  tipoContratto: 'TI',
+  fulltime: true,
+  percParttime: 100,
+  regione: 'Lombardia',
+  tredicesimaMensile: false,
+  permessiMensili: false,
+};
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+async function init() {
+  try {
+    const [m, a, c] = await Promise.all([
+      fetch('mansioni.json').then(r => r.json()),
+      fetch('ccnl_anpit.json').then(r => r.json()),
+      fetch('ccnl_confcommercio.json').then(r => r.json()),
+    ]);
+    DATA.mansioni = m;
+    DATA.anpit = a;
+    DATA.confcommercio = c;
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    renderProgress();
+    renderStep();
+  } catch(e) {
+    document.getElementById('loading').classList.add('hidden');
+    const eb = document.getElementById('error-box');
+    eb.textContent = 'Errore nel caricamento dei file JSON. Assicurati che mansioni.json, ccnl_anpit.json e ccnl_confcommercio.json siano nella stessa cartella di index.html e che tu stia aprendo la pagina tramite un server locale (es. Live Server in VS Code).';
+    eb.classList.remove('hidden');
+  }
+}
+
+// ─── PROGRESS ────────────────────────────────────────────────────────────────
+function renderProgress() {
+  const el = document.getElementById('progress-steps');
+  el.innerHTML = STEPS.map((s, i) => {
+    let cls = '';
+    if (i < state.step) cls = 'done';
+    else if (i === state.step) cls = 'active';
+    const label = i < state.step ? '✓' : (i + 1);
+    return `<div class="progress-step ${cls}">
+      <div class="step-dot">${label}</div>
+      <div class="step-label">${s.label}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── STEP RENDERER ───────────────────────────────────────────────────────────
+function renderStep() {
+  const container = document.getElementById('step-container');
+  switch(state.step) {
+    case 0: container.innerHTML = renderSettore(); break;
+    case 1: container.innerHTML = renderArea(); break;
+    case 2: container.innerHTML = renderMansione(); break;
+    case 3: container.innerHTML = renderCCNL(); break;
+    case 4: container.innerHTML = renderParametri(); break;
+    case 5: container.innerHTML = renderRisultati(); break;
+  }
+  attachListeners();
+}
+
+function renderSettore() {
+  const cats = DATA.mansioni.categorie;
+  const icons = { ristorazione: '🍴', hotel: '🏨' };
+  return `<div class="card">
+    <div class="card-title">Seleziona il Settore</div>
+    <div class="card-subtitle">Scegli il comparto di appartenenza dell'azienda</div>
+    <div class="option-grid">
+      ${cats.map(c => `
+        <button class="option-btn ${state.settore === c.id ? 'selected' : ''}" data-action="pick-settore" data-id="${c.id}">
+          <span class="opt-icon">${icons[c.id] || '🏢'}</span>
+          ${c.label}
+        </button>`).join('')}
+    </div>
+    <div class="nav-row">
+      <span></span>
+      <button class="btn btn-primary" data-action="next" ${!state.settore ? 'disabled' : ''}>Avanti →</button>
+    </div>
+  </div>`;
+}
+
+function renderArea() {
+  const cat = DATA.mansioni.categorie.find(c => c.id === state.settore);
+  const areaIcons = { cucina:'👨‍🍳', sala:'🍷', amministrativo:'💼', reception:'🛎', colazioni_ristorante:'🥐', pulizia:'🧹', manutenzione:'🔧' };
+  return `<div class="card">
+    <div class="card-title">Seleziona l'Area</div>
+    <div class="card-subtitle">Scegli il reparto di appartenenza del dipendente</div>
+    <div class="option-grid">
+      ${cat.settori.map(s => `
+        <button class="option-btn ${state.area === s.id ? 'selected' : ''}" data-action="pick-area" data-id="${s.id}">
+          <span class="opt-icon">${areaIcons[s.id] || '👤'}</span>
+          ${s.label}
+        </button>`).join('')}
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" data-action="back">← Indietro</button>
+      <button class="btn btn-primary" data-action="next" ${!state.area ? 'disabled' : ''}>Avanti →</button>
+    </div>
+  </div>`;
+}
+
+function renderMansione() {
+  const cat = DATA.mansioni.categorie.find(c => c.id === state.settore);
+  const area = cat.settori.find(s => s.id === state.area);
+  return `<div class="card">
+    <div class="card-title">Seleziona la Mansione</div>
+    <div class="card-subtitle">Scegli il ruolo specifico del dipendente</div>
+    <div class="option-grid" style="grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));">
+      ${area.mansioni.map(m => `
+        <button class="option-btn ${state.mansione === m.id ? 'selected' : ''}" data-action="pick-mansione" data-id="${m.id}">
+          ${m.label}
+        </button>`).join('')}
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" data-action="back">← Indietro</button>
+      <button class="btn btn-primary" data-action="next" ${!state.mansione ? 'disabled' : ''}>Avanti →</button>
+    </div>
+  </div>`;
+}
+
+function renderCCNL() {
+  return `<div class="card">
+    <div class="card-title">Seleziona il CCNL</div>
+    <div class="card-subtitle">Scegli il contratto collettivo applicato in azienda</div>
+    <div class="option-grid">
+      <button class="option-btn ${state.ccnl === 'anpit' ? 'selected' : ''}" data-action="pick-ccnl" data-id="anpit">
+        <span class="opt-icon">📋</span>
+        CCNL ANPIT<br><small style="font-weight:400;color:var(--text-muted)">Turismo</small>
+      </button>
+      <button class="option-btn ${state.ccnl === 'confcommercio' ? 'selected' : ''}" data-action="pick-ccnl" data-id="confcommercio">
+        <span class="opt-icon">📄</span>
+        CCNL Confcommercio<br><small style="font-weight:400;color:var(--text-muted)">Turismo</small>
+      </button>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" data-action="back">← Indietro</button>
+      <button class="btn btn-primary" data-action="next" ${!state.ccnl ? 'disabled' : ''}>Avanti →</button>
+    </div>
+  </div>`;
+}
+
+function renderParametri() {
+  const regioniOptions = Object.entries(REGIONI_LABEL).map(([k,v]) =>
+    `<option value="${k}" ${state.regione === k ? 'selected' : ''}>${v}</option>`).join('');
+
+  return `<div class="card">
+    <div class="card-title">Parametri del Contratto</div>
+    <div class="card-subtitle">Configura le condizioni contrattuali del dipendente</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Tipo Contratto</label>
+        <div class="radio-group">
+          <label class="radio-btn">
+            <input type="radio" name="tipo" value="TI" ${state.tipoContratto==='TI'?'checked':''}> Tempo Indeterminato
+          </label>
+          <label class="radio-btn">
+            <input type="radio" name="tipo" value="TD" ${state.tipoContratto==='TD'?'checked':''}> Tempo Determinato
+          </label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Orario</label>
+        <div class="radio-group">
+          <label class="radio-btn">
+            <input type="radio" name="orario" value="FT" ${state.fulltime?'checked':''}> Full Time
+          </label>
+          <label class="radio-btn">
+            <input type="radio" name="orario" value="PT" ${!state.fulltime?'checked':''}> Part Time
+          </label>
+        </div>
+      </div>
+      <div class="form-group" id="pt-field" ${state.fulltime ? 'style="display:none"' : ''}>
+        <label>Percentuale ore Part Time (%)</label>
+        <input type="number" id="perc-pt" min="1" max="99" value="${state.percParttime}" placeholder="es. 50">
+      </div>
+      ${state.ccnl === 'anpit' ? `
+      <div class="form-group">
+        <label>Regione (per EPMR)</label>
+        <select id="regione-sel">${regioniOptions}</select>
+      </div>` : '<div class="form-group"></div>'}
+      <div class="form-group full">
+        <div class="toggle-row">
+          <span class="toggle-label">${state.ccnl === 'confcommercio' ? '13ª + 14ª pagate mensilmente?' : '13ª pagata mensilmente?'}</span>
+          <label class="toggle">
+            <input type="checkbox" id="tog-13a" ${state.tredicesimaMensile ? 'checked' : ''}>
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+      <div class="form-group full">
+        <div class="toggle-row">
+          <span class="toggle-label">Permessi pagati mensilmente?</span>
+          <label class="toggle">
+            <input type="checkbox" id="tog-perm" ${state.permessiMensili ? 'checked' : ''}>
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" data-action="back">← Indietro</button>
+      <button class="btn btn-primary" data-action="calcola">Calcola →</button>
+    </div>
+  </div>`;
+}
+
+// ─── CALCOLI ─────────────────────────────────────────────────────────────────
+function calcIRPEF(impFiscaleMensile) {
+  const base = impFiscaleMensile;
+  let irpef = 0;
+  if (base <= 2333.33) {
+    irpef = base * 0.23;
+  } else if (base <= 4166.66) {
+    irpef = 2333.33 * 0.23 + (base - 2333.33) * 0.33;
+  } else {
+    irpef = 2333.33 * 0.23 + 1833.33 * 0.33 + (base - 4166.66) * 0.43;
+  }
+  return irpef;
+}
+
+function calcDetrazioni(impAnnuo, tipoContratto) {
+  let detAnnua = 0;
+  if (impAnnuo <= 15000) {
+    detAnnua = 1955;
+  } else if (impAnnuo <= 28000) {
+    detAnnua = 1910 + 1190 * (28000 - impAnnuo) / 13000;
+  } else if (impAnnuo <= 50000) {
+    detAnnua = 1910 * (50000 - impAnnuo) / 22000;
+  } else {
+    detAnnua = 0;
+  }
+  const minGarantito = tipoContratto === 'TI' ? 690 : 1380;
+  detAnnua = Math.max(detAnnua, minGarantito);
+  return detAnnua / 365 * 30; // mensile
+}
+
+function calcUlterioriDetrazioni(impAnnuo) {
+  if (impAnnuo >= 20000 && impAnnuo <= 32000) {
+    return 1000 / 12;
+  } else if (impAnnuo > 32000 && impAnnuo <= 40000) {
+    return 1000 * (40000 - impAnnuo) / 8000 / 12;
+  }
+  return 0;
+}
+
+function calcBonusRenzi(impAnnuo) {
+  if (impAnnuo <= 8500) return 0;
+  if (impAnnuo <= 15000) return 100;
+  if (impAnnuo <= 20000) return impAnnuo * 0.048 / 12;
+  return 0;
+}
+
+function calcANPIT() {
+  const td = state.tipoContratto === 'TD';
+  const perc = state.fulltime ? 1 : state.percParttime / 100;
+  const cat = DATA.mansioni.categorie.find(c => c.id === state.settore);
+  const area = cat.settori.find(s => s.id === state.area);
+  const mansObj = area.mansioni.find(m => m.id === state.mansione);
+  const livello = mansObj.livello_anpit;
+  const datiLiv = DATA.anpit.livelli[livello];
+  const epmrLiv = DATA.anpit.epmr[livello] || {};
+  const epmr = epmrLiv[state.regione] || 0;
+
+  const rlt = (datiLiv.minimo + datiLiv.immc + epmr) * perc;
+
+  // COSTO AZIENDA
+  const inpsAliq = td ? 0.314 : 0.30;
+  const inps = rlt * inpsAliq;
+  const inail = rlt * 0.011;
+  const enbicAz = td ? 4.50 : 21.50;
+  const welfare = 20;
+
+  const rateo13a = (rlt + inps + inail) / 12;
+  const rateoFerie = (rlt + inps) / 173 * 160 / 12;
+  const rateoPermessi = (rlt + inps) / 173 * 48 / 12;
+  const tfr = rlt / 12 * 13 / 13.5;
+
+  const costoBase = rlt + inps + inail + rateo13a + rateoFerie + rateoPermessi + tfr;
+  const costoTotale = costoBase + enbicAz + welfare;
+
+  // NETTO IN BUSTA
+  const contribDip = rlt * 0.0929;
+  const enbicDip = td ? 1.50 : 2.50;
+  const quota13a = state.tredicesimaMensile ? rlt / 12 : 0;
+  const quotaPermessi = state.permessiMensili ? rlt / 173 * 48 / 12 : 0;
+  const impFiscale = rlt + quota13a + quotaPermessi - contribDip - enbicDip;
+  const impAnnuo = impFiscale * (state.tredicesimaMensile ? 12 : 13);
+
+  const noTaxArea = impAnnuo <= 8500;
+  let irpefNetta = 0;
+  let bonusRenzi = 0;
+
+  if (!noTaxArea) {
+    const irpefLorda = calcIRPEF(impFiscale);
+    const detrazioni = calcDetrazioni(impAnnuo, state.tipoContratto);
+    const ultrDet = calcUlterioriDetrazioni(impAnnuo);
+    irpefNetta = Math.max(irpefLorda - detrazioni - ultrDet, 0);
+    bonusRenzi = calcBonusRenzi(impAnnuo);
+  }
+
+  const netto = noTaxArea ? impFiscale : impFiscale - irpefNetta + bonusRenzi;
+
+  return {
+    rlt, inps, inail, enbicAz, welfare,
+    rateo13a, rateoFerie, rateoPermessi, tfr,
+    costoTotale,
+    contribDip, enbicDip, quota13a, quotaPermessi,
+    impFiscale, impAnnuo, irpefNetta, bonusRenzi, noTaxArea,
+    netto,
+    livello, mansione: mansObj.label,
+    datiLiv, epmr, perc,
+  };
+}
+
+function calcConfcommercio() {
+  const td = state.tipoContratto === 'TD';
+  const perc = state.fulltime ? 1 : state.percParttime / 100;
+  const cat = DATA.mansioni.categorie.find(c => c.id === state.settore);
+  const area = cat.settori.find(s => s.id === state.area);
+  const mansObj = area.mansioni.find(m => m.id === state.mansione);
+  const livello = mansObj.livello_confcommercio;
+  const datiLiv = DATA.confcommercio.livelli[livello];
+
+  const rlt = (datiLiv.minimo + datiLiv.contingenza + datiLiv.indennita_funzione) * perc;
+
+  // COSTO AZIENDA
+  const inpsAliq = td ? 0.314 : 0.30;
+  const inps = rlt * inpsAliq;
+  const inail = rlt * 0.011;
+  const fondoEST = td ? 0 : 12;
+
+  const rateo13_14 = (rlt + inps + inail) / 6;
+  const rateoFerie = (rlt + inps) / 172 * 173 / 12;
+  const rateoPermessi = (rlt + inps) / 172 * 104 / 12;
+  const tfr = rlt / 12 * 14 / 13.5;
+
+  const costoBase = rlt + inps + inail + rateo13_14 + rateoFerie + rateoPermessi + tfr;
+  const costoTotale = costoBase + fondoEST;
+
+  // NETTO IN BUSTA
+  const contribDip = rlt * 0.0929;
+  const enbicDip = td ? 1.50 : 2.50;
+  const quota13a14a = state.tredicesimaMensile ? rlt / 6 : 0;
+  const quotaPermessi = state.permessiMensili ? rlt / 172 * 104 / 12 : 0;
+  const impFiscale = rlt + quota13a14a + quotaPermessi - contribDip - enbicDip;
+  const impAnnuo = impFiscale * (state.tredicesimaMensile ? 12 : 14);
+
+  const noTaxArea = impAnnuo <= 8500;
+  let irpefNetta = 0;
+  let bonusRenzi = 0;
+
+  if (!noTaxArea) {
+    const irpefLorda = calcIRPEF(impFiscale);
+    const detrazioni = calcDetrazioni(impAnnuo, state.tipoContratto);
+    const ultrDet = calcUlterioriDetrazioni(impAnnuo);
+    irpefNetta = Math.max(irpefLorda - detrazioni - ultrDet, 0);
+    bonusRenzi = calcBonusRenzi(impAnnuo);
+  }
+
+  const netto = noTaxArea ? impFiscale : impFiscale - irpefNetta + bonusRenzi;
+
+  return {
+    rlt, inps, inail, fondoEST,
+    rateo13_14, rateoFerie, rateoPermessi, tfr,
+    costoTotale,
+    contribDip, enbicDip, quota13a14a, quotaPermessi,
+    impFiscale, impAnnuo, irpefNetta, bonusRenzi, noTaxArea,
+    netto,
+    livello, mansione: mansObj.label,
+    datiLiv, perc,
+  };
+}
+
+function fmt(n) {
+  return '€ ' + n.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+function renderRisultati() {
+  const isAnpit = state.ccnl === 'anpit';
+  const r = isAnpit ? calcANPIT() : calcConfcommercio();
+
+  const cat = DATA.mansioni.categorie.find(c => c.id === state.settore);
+  const area = cat.settori.find(s => s.id === state.area);
+
+  const summaryItems = [
+    `<strong>${r.mansione}</strong>`,
+    `${cat.label} › ${area.label}`,
+    `Livello <strong>${r.livello}</strong>`,
+    `CCNL <strong>${isAnpit ? 'ANPIT' : 'Confcommercio'}</strong>`,
+    `<strong>${state.tipoContratto}</strong>`,
+    state.fulltime ? 'Full Time' : `Part Time <strong>${state.percParttime}%</strong>`,
+    ...(isAnpit ? [`Regione: <strong>${REGIONI_LABEL[state.regione]}</strong>`] : []),
+  ];
+
+  // Costo azienda detail rows
+  const costoRows = isAnpit ? [
+    { l: 'Retribuzione Lorda (RLT)', v: r.rlt },
+    { l: `INPS azienda (${state.tipoContratto === 'TI' ? '30%' : '31,4%'})`, v: r.inps },
+    { l: 'INAIL (1,1%)', v: r.inail },
+    { l: `Rateo 13ª`, v: r.rateo13a },
+    { l: 'Rateo ferie', v: r.rateoFerie },
+    { l: 'Rateo permessi', v: r.rateoPermessi },
+    { l: 'TFR', v: r.tfr },
+    { l: `ENBIC azienda (${state.tipoContratto === 'TI' ? '€21,50' : '€4,50'} fissi)`, v: r.enbicAz },
+    { l: 'Welfare (€20 fissi)', v: r.welfare },
+  ] : [
+    { l: 'Retribuzione Lorda (RLT)', v: r.rlt },
+    { l: `INPS azienda (${state.tipoContratto === 'TI' ? '30%' : '31,4%'})`, v: r.inps },
+    { l: 'INAIL (1,1%)', v: r.inail },
+    { l: 'Rateo 13ª + 14ª', v: r.rateo13_14 },
+    { l: 'Rateo ferie', v: r.rateoFerie },
+    { l: 'Rateo permessi', v: r.rateoPermessi },
+    { l: 'TFR', v: r.tfr },
+    ...(r.fondoEST > 0 ? [{ l: 'Fondo EST (€12 fissi)', v: r.fondoEST }] : []),
+  ];
+
+  // Netto detail rows
+  const nettoRows = [
+    { l: 'Retribuzione Lorda (RLT)', v: r.rlt, cls: '' },
+    ...(isAnpit
+      ? (r.quota13a > 0 ? [{ l: '+ Quota 13ª mensile', v: r.quota13a, cls: 'positive' }] : [])
+      : (r.quota13a14a > 0 ? [{ l: '+ Quota 13ª+14ª mensile', v: r.quota13a14a, cls: 'positive' }] : [])
+    ),
+    ...(r.quotaPermessi > 0 ? [{ l: '+ Quota permessi mensile', v: r.quotaPermessi, cls: 'positive' }] : []),
+    { l: '− Contributi dipendente (9,29%)', v: -r.contribDip, cls: 'negative' },
+    { l: `− ENBIC dipendente (€${r.enbicDip.toFixed(2)})`, v: -r.enbicDip, cls: 'negative' },
+    { l: 'Imponibile fiscale', v: r.impFiscale, cls: '' },
+    { l: `Imponibile annuo stimato`, v: r.impAnnuo, cls: '' },
+    ...(r.noTaxArea
+      ? [{ l: 'No Tax Area (IRPEF = €0)', v: 0, cls: '' }]
+      : [
+          { l: '− IRPEF netta', v: -r.irpefNetta, cls: 'negative' },
+          ...(r.bonusRenzi > 0 ? [{ l: '+ Bonus dipendenti (ex Renzi)', v: r.bonusRenzi, cls: 'positive' }] : []),
+        ]
+    ),
+  ];
+
+  return `
+    <div class="summary-bar">${summaryItems.join(' &nbsp;|&nbsp; ')}</div>
+    <div class="results-grid">
+      <div class="result-card azienda">
+        <div class="result-card-header">
+          <div>
+            <div class="result-card-label">Costo Azienda</div>
+            <div class="result-card-total">${fmt(r.costoTotale)}</div>
+          </div>
+          <div class="result-card-sublabel">/ mese</div>
+        </div>
+        <div class="result-card-body">
+          ${costoRows.map(row => `
+            <div class="detail-row">
+              <span class="label">${row.l}</span>
+              <span class="value">${fmt(row.v)}</span>
+            </div>`).join('')}
+          <div class="detail-row total">
+            <span class="label">TOTALE COSTO MENSILE</span>
+            <span class="value">${fmt(r.costoTotale)}</span>
+          </div>
+        </div>
+      </div>
+      <div class="result-card netto">
+        <div class="result-card-header">
+          <div>
+            <div class="result-card-label">Netto in Busta</div>
+            <div class="result-card-total">${fmt(r.netto)}</div>
+          </div>
+          <div class="result-card-sublabel">/ mese</div>
+        </div>
+        <div class="result-card-body">
+          ${nettoRows.map(row => `
+            <div class="detail-row ${row.cls || ''}">
+              <span class="label">${row.l}</span>
+              <span class="value">${row.v !== 0 ? fmt(Math.abs(row.v)) : '€ 0,00'}</span>
+            </div>`).join('')}
+          <div class="detail-row total">
+            <span class="label">NETTO IN BUSTA</span>
+            <span class="value">${fmt(r.netto)}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="disclaimer">
+      ⚠️ <strong>Stima indicativa.</strong> I calcoli sono basati sulle tabelle contrattuali indicate e su aliquote medie. Verificare sempre con il proprio consulente del lavoro. Le aliquote INAIL possono variare per settore/mansione.
+    </div>
+    <div class="nav-row" style="margin-top:0">
+      <button class="btn btn-secondary" data-action="back">← Modifica</button>
+      <button class="btn btn-primary" data-action="reset">Nuovo Calcolo</button>
+    </div>`;
+}
+
+// ─── LISTENERS ───────────────────────────────────────────────────────────────
+function attachListeners() {
+  // Option buttons
+  document.querySelectorAll('[data-action="pick-settore"]').forEach(b => {
+    b.addEventListener('click', () => {
+      state.settore = b.dataset.id;
+      state.area = null;
+      state.mansione = null;
+      renderStep();
+    });
+  });
+  document.querySelectorAll('[data-action="pick-area"]').forEach(b => {
+    b.addEventListener('click', () => {
+      state.area = b.dataset.id;
+      state.mansione = null;
+      renderStep();
+    });
+  });
+  document.querySelectorAll('[data-action="pick-mansione"]').forEach(b => {
+    b.addEventListener('click', () => { state.mansione = b.dataset.id; renderStep(); });
+  });
+  document.querySelectorAll('[data-action="pick-ccnl"]').forEach(b => {
+    b.addEventListener('click', () => { state.ccnl = b.dataset.id; renderStep(); });
+  });
+
+  // Parametri form
+  document.querySelectorAll('input[name="tipo"]').forEach(r => {
+    r.addEventListener('change', () => { state.tipoContratto = r.value; renderStep(); });
+  });
+  document.querySelectorAll('input[name="orario"]').forEach(r => {
+    r.addEventListener('change', () => {
+      state.fulltime = r.value === 'FT';
+      const ptf = document.getElementById('pt-field');
+      if (ptf) ptf.style.display = state.fulltime ? 'none' : '';
+    });
+  });
+  const percInput = document.getElementById('perc-pt');
+  if (percInput) percInput.addEventListener('input', () => {
+    state.percParttime = parseFloat(percInput.value) || 100;
+  });
+  const regSel = document.getElementById('regione-sel');
+  if (regSel) regSel.addEventListener('change', () => { state.regione = regSel.value; });
+  const tog13 = document.getElementById('tog-13a');
+  if (tog13) tog13.addEventListener('change', () => { state.tredicesimaMensile = tog13.checked; });
+  const togPerm = document.getElementById('tog-perm');
+  if (togPerm) togPerm.addEventListener('change', () => { state.permessiMensili = togPerm.checked; });
+
+  // Nav
+  const nextBtn = document.querySelector('[data-action="next"]');
+  if (nextBtn) nextBtn.addEventListener('click', () => {
+    state.step = Math.min(state.step + 1, STEPS.length - 1);
+    renderProgress();
+    renderStep();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  const backBtn = document.querySelector('[data-action="back"]');
+  if (backBtn) backBtn.addEventListener('click', () => {
+    state.step = Math.max(state.step - 1, 0);
+    renderProgress();
+    renderStep();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  const calcolaBtn = document.querySelector('[data-action="calcola"]');
+  if (calcolaBtn) calcolaBtn.addEventListener('click', () => {
+    // Read current form state before calculating
+    const percEl = document.getElementById('perc-pt');
+    if (percEl) state.percParttime = parseFloat(percEl.value) || 100;
+    const regEl = document.getElementById('regione-sel');
+    if (regEl) state.regione = regEl.value;
+    const t13 = document.getElementById('tog-13a');
+    if (t13) state.tredicesimaMensile = t13.checked;
+    const tPerm = document.getElementById('tog-perm');
+    if (tPerm) state.permessiMensili = tPerm.checked;
+
+    state.step = 5;
+    renderProgress();
+    renderStep();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  const resetBtn = document.querySelector('[data-action="reset"]');
+  if (resetBtn) resetBtn.addEventListener('click', () => {
+    state = {
+      step: 0, settore: null, area: null, mansione: null, ccnl: null,
+      tipoContratto: 'TI', fulltime: true, percParttime: 100,
+      regione: 'Lombardia', tredicesimaMensile: false, permessiMensili: false,
+    };
+    renderProgress();
+    renderStep();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+
+init();
+</script>
+</body>
+</html>
