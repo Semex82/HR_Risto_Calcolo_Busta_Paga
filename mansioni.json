@@ -8,102 +8,33 @@
           "id": "cucina",
           "label": "Cucina",
           "mansioni": [
-            {
-              "id": "chef",
-              "label": "Chef",
-              "livello_anpit": "B1",
-              "livello_confcommercio": "2"
-            },
-            {
-              "id": "primo_cuoco",
-              "label": "Primo Cuoco",
-              "livello_anpit": "B2",
-              "livello_confcommercio": "3"
-            },
-            {
-              "id": "secondo_cuoco",
-              "label": "Secondo Cuoco",
-              "livello_anpit": "C1",
-              "livello_confcommercio": "4"
-            },
-            {
-              "id": "aiuto_cuoco",
-              "label": "Aiuto Cuoco",
-              "livello_anpit": "D2",
-              "livello_confcommercio": "6"
-            },
-            {
-              "id": "lavapiatti",
-              "label": "Lavapiatti",
-              "livello_anpit": "D2",
-              "livello_confcommercio": "7"
-            }
+            { "id": "chef",            "label": "Chef",            "livello_anpit": "B1", "livello_confcommercio": "2" },
+            { "id": "primo_cuoco",     "label": "Primo Cuoco",     "livello_anpit": "B2", "livello_confcommercio": "3" },
+            { "id": "secondo_cuoco",   "label": "Secondo Cuoco",   "livello_anpit": "C1", "livello_confcommercio": "4" },
+            { "id": "cuoco_junior",    "label": "Cuoco Junior",    "livello_anpit": "C2", "livello_confcommercio": "5" },
+            { "id": "aiuto_cuoco",     "label": "Aiuto Cuoco",     "livello_anpit": "D1", "livello_confcommercio": "6S" },
+            { "id": "lavapiatti",      "label": "Lavapiatti",      "livello_anpit": "D2", "livello_confcommercio": "7" }
           ]
         },
         {
           "id": "sala",
           "label": "Sala",
           "mansioni": [
-            {
-              "id": "responsabile_sala",
-              "label": "Responsabile di Sala",
-              "livello_anpit": "C1",
-              "livello_confcommercio": "2"
-            },
-            {
-              "id": "chef_de_rang",
-              "label": "Chef de Rang",
-              "livello_anpit": "A2",
-              "livello_confcommercio": "4"
-            },
-            {
-              "id": "cameriere_specializzato",
-              "label": "Cameriere Specializzato",
-              "livello_anpit": "C1",
-              "livello_confcommercio": "4"
-            },
-            {
-              "id": "cameriere",
-              "label": "Cameriere",
-              "livello_anpit": "D1",
-              "livello_confcommercio": "5"
-            },
-            {
-              "id": "aiuto_sala",
-              "label": "Aiuto Sala",
-              "livello_anpit": "C2",
-              "livello_confcommercio": "6"
-            },
-            {
-              "id": "addetto_pulizie",
-              "label": "Addetto alle Pulizie",
-              "livello_anpit": "D2",
-              "livello_confcommercio": "7"
-            }
+            { "id": "responsabile_sala",       "label": "Responsabile di Sala",    "livello_anpit": "C1", "livello_confcommercio": "2" },
+            { "id": "chef_de_rang",            "label": "Chef de Rang",            "livello_anpit": "C1", "livello_confcommercio": "4" },
+            { "id": "cameriere_specializzato", "label": "Cameriere Specializzato", "livello_anpit": "C1", "livello_confcommercio": "4" },
+            { "id": "cameriere",               "label": "Cameriere",               "livello_anpit": "C2", "livello_confcommercio": "5" },
+            { "id": "aiuto_sala",              "label": "Aiuto Sala",              "livello_anpit": "D1", "livello_confcommercio": "6S" },
+            { "id": "addetto_pulizie",         "label": "Addetto alle Pulizie",    "livello_anpit": "D2", "livello_confcommercio": "7" }
           ]
         },
         {
           "id": "amministrativo",
           "label": "Personale Amministrativo",
           "mansioni": [
-            {
-              "id": "direttore",
-              "label": "Direttore/Responsabile",
-              "livello_anpit": "Quadro",
-              "livello_confcommercio": "QA"
-            },
-            {
-              "id": "impiegato_specializzato",
-              "label": "Impiegato Specializzato",
-              "livello_anpit": "C2",
-              "livello_confcommercio": "4"
-            },
-            {
-              "id": "impiegato_amministrativo",
-              "label": "Impiegato Amministrativo",
-              "livello_anpit": "D2",
-              "livello_confcommercio": "5"
-            }
+            { "id": "direttore",                "label": "Direttore/Responsabile",   "livello_anpit": "A2", "livello_confcommercio": "QA" },
+            { "id": "impiegato_specializzato",  "label": "Impiegato Specializzato",  "livello_anpit": "B2", "livello_confcommercio": "3" },
+            { "id": "impiegato_amministrativo", "label": "Impiegato Amministrativo", "livello_anpit": "C1", "livello_confcommercio": "4" }
           ]
         }
       ]
@@ -116,162 +47,52 @@
           "id": "reception",
           "label": "Reception",
           "mansioni": [
-            {
-              "id": "receptionist_qualificato",
-              "label": "Receptionist Qualificato",
-              "livello_anpit": "C2",
-              "livello_confcommercio": "4"
-            },
-            {
-              "id": "receptionist",
-              "label": "Receptionist",
-              "livello_anpit": "D2",
-              "livello_confcommercio": "5"
-            },
-            {
-              "id": "facchino",
-              "label": "Facchino",
-              "livello_anpit": "D2",
-              "livello_confcommercio": "7"
-            }
+            { "id": "receptionist_qualificato", "label": "Receptionist Qualificato", "livello_anpit": "C1", "livello_confcommercio": "3" },
+            { "id": "receptionist",             "label": "Receptionist",             "livello_anpit": "D1", "livello_confcommercio": "4" },
+            { "id": "facchino",                 "label": "Facchino",                 "livello_anpit": "D2", "livello_confcommercio": "6" }
           ]
         },
         {
           "id": "colazioni_ristorante",
           "label": "Colazioni e Ristorante",
           "mansioni": [
-            {
-              "id": "chef",
-              "label": "Chef",
-              "livello_anpit": "B1",
-              "livello_confcommercio": "2"
-            },
-            {
-              "id": "primo_cuoco",
-              "label": "Primo Cuoco",
-              "livello_anpit": "B2",
-              "livello_confcommercio": "3"
-            },
-            {
-              "id": "secondo_cuoco",
-              "label": "Secondo Cuoco",
-              "livello_anpit": "C1",
-              "livello_confcommercio": "4"
-            },
-            {
-              "id": "aiuto_cuoco",
-              "label": "Aiuto Cuoco",
-              "livello_anpit": "D2",
-              "livello_confcommercio": "6"
-            },
-            {
-              "id": "lavapiatti",
-              "label": "Lavapiatti",
-              "livello_anpit": "D2",
-              "livello_confcommercio": "7"
-            },
-            {
-              "id": "responsabile_sala",
-              "label": "Responsabile di Sala",
-              "livello_anpit": "C1",
-              "livello_confcommercio": "2"
-            },
-            {
-              "id": "chef_de_rang",
-              "label": "Chef de Rang",
-              "livello_anpit": "A2",
-              "livello_confcommercio": "4"
-            },
-            {
-              "id": "cameriere_specializzato",
-              "label": "Cameriere Specializzato",
-              "livello_anpit": "C1",
-              "livello_confcommercio": "4"
-            },
-            {
-              "id": "cameriere",
-              "label": "Cameriere",
-              "livello_anpit": "D1",
-              "livello_confcommercio": "5"
-            },
-            {
-              "id": "aiuto_sala",
-              "label": "Aiuto Sala",
-              "livello_anpit": "C2",
-              "livello_confcommercio": "6"
-            },
-            {
-              "id": "addetto_pulizie",
-              "label": "Addetto alle Pulizie",
-              "livello_anpit": "D2",
-              "livello_confcommercio": "7"
-            }
+            { "id": "chef",                    "label": "Chef",                    "livello_anpit": "B1", "livello_confcommercio": "2" },
+            { "id": "primo_cuoco",             "label": "Primo Cuoco",             "livello_anpit": "B2", "livello_confcommercio": "3" },
+            { "id": "secondo_cuoco",           "label": "Secondo Cuoco",           "livello_anpit": "C1", "livello_confcommercio": "4" },
+            { "id": "cuoco_junior",            "label": "Cuoco Junior",            "livello_anpit": "C2", "livello_confcommercio": "5" },
+            { "id": "aiuto_cuoco",             "label": "Aiuto Cuoco",             "livello_anpit": "D1", "livello_confcommercio": "6S" },
+            { "id": "lavapiatti",              "label": "Lavapiatti",              "livello_anpit": "D2", "livello_confcommercio": "7" },
+            { "id": "chef_de_rang",            "label": "Chef de Rang",            "livello_anpit": "C1", "livello_confcommercio": "4" },
+            { "id": "cameriere_specializzato", "label": "Cameriere Specializzato", "livello_anpit": "C1", "livello_confcommercio": "4" },
+            { "id": "cameriere",               "label": "Cameriere",               "livello_anpit": "C2", "livello_confcommercio": "5" },
+            { "id": "aiuto_sala",              "label": "Aiuto Sala",              "livello_anpit": "D1", "livello_confcommercio": "6S" },
+            { "id": "addetto_pulizie",         "label": "Addetto alle Pulizie",    "livello_anpit": "D2", "livello_confcommercio": "7" }
           ]
         },
         {
           "id": "pulizia",
           "label": "Pulizia",
           "mansioni": [
-            {
-              "id": "addetto_pulizia_camere",
-              "label": "Addetto Pulizia Camere",
-              "livello_anpit": "D2",
-              "livello_confcommercio": "6"
-            },
-            {
-              "id": "addetto_pulizia_hotel",
-              "label": "Addetto Pulizia Hotel",
-              "livello_anpit": "D2",
-              "livello_confcommercio": "6"
-            }
+            { "id": "addetto_pulizia_camere", "label": "Addetto Pulizia Camere", "livello_anpit": "D2", "livello_confcommercio": "7" },
+            { "id": "addetto_pulizia_hotel",  "label": "Addetto Pulizia Hotel",  "livello_anpit": "D2", "livello_confcommercio": "7" }
           ]
         },
         {
           "id": "manutenzione",
           "label": "Manutenzione",
           "mansioni": [
-            {
-              "id": "capo_manutentore",
-              "label": "Capo Manutentore",
-              "livello_anpit": "B2",
-              "livello_confcommercio": "4"
-            },
-            {
-              "id": "manutentore",
-              "label": "Manutentore",
-              "livello_anpit": "C1",
-              "livello_confcommercio": "5"
-            },
-            {
-              "id": "giardiniere",
-              "label": "Giardiniere",
-              "livello_anpit": "D1",
-              "livello_confcommercio": "5"
-            }
+            { "id": "capo_manutentore", "label": "Capo Manutentore", "livello_anpit": "B2", "livello_confcommercio": "2" },
+            { "id": "manutentore",      "label": "Manutentore",      "livello_anpit": "C1", "livello_confcommercio": "4" },
+            { "id": "giardiniere",      "label": "Giardiniere",      "livello_anpit": "C2", "livello_confcommercio": "4" }
           ]
         },
         {
           "id": "amministrativo",
           "label": "Personale Amministrativo",
           "mansioni": [
-            {
-              "id": "direttore",
-              "label": "Direttore/Responsabile",
-              "livello_anpit": "Quadro",
-              "livello_confcommercio": "QA"
-            },
-            {
-              "id": "impiegato_specializzato",
-              "label": "Impiegato Specializzato",
-              "livello_anpit": "C2",
-              "livello_confcommercio": "4"
-            },
-            {
-              "id": "impiegato_amministrativo",
-              "label": "Impiegato Amministrativo",
-              "livello_anpit": "D2",
-              "livello_confcommercio": "5"
-            }
+            { "id": "direttore",                "label": "Direttore/Responsabile",   "livello_anpit": "A2", "livello_confcommercio": "QA" },
+            { "id": "impiegato_specializzato",  "label": "Impiegato Specializzato",  "livello_anpit": "B2", "livello_confcommercio": "3" },
+            { "id": "impiegato_amministrativo", "label": "Impiegato Amministrativo", "livello_anpit": "C1", "livello_confcommercio": "4" }
           ]
         }
       ]
