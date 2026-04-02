@@ -1060,8 +1060,8 @@ function renderRisultati() {
         <button class="seg-btn ${state.periodo==='annuale'?'active':''}" data-action="periodo" data-val="annuale">Annuale</button>
       </div>
       <div class="seg-toggle ccnl" id="toggle-ccnl">
-        <button class="seg-btn ${state.ccnl==='anpit'?'active':''}" data-action="ccnl" data-val="anpit">CCNL ANPIT</button>
         <button class="seg-btn ${state.ccnl==='confcommercio'?'active':''}" data-action="ccnl" data-val="confcommercio">CCNL Confcommercio</button>
+        <button class="seg-btn ${state.ccnl==='anpit'?'active':''}" data-action="ccnl" data-val="anpit">CCNL ANPIT</button>
       </div>
     </div>
 
@@ -1133,7 +1133,7 @@ function attachListeners() {
   const resetBtn = document.querySelector('[data-action="reset"]');
   if (resetBtn) resetBtn.addEventListener('click', () => {
     state = { step: 0, settore: null, area: null,
-      ccnl: 'anpit', tipoContratto: 'TI', fulltime: true, percParttime: 100,
+      ccnl: 'confcommercio', tipoContratto: 'TI', fulltime: true, percParttime: 100,
       regione: 'Lombardia', tredicesimaMensile: false, permessiMensili: false, periodo: 'mensile' };
     expandedBlocks.clear();
     goTo(0);
