@@ -8,10 +8,10 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --primary: #1863DC;
-    --primary-dark: #1450B0;
-    --primary-light: #4A87E8;
-    --primary-bg: #EEF4FF;
+    --primary: #1A6B6B;
+    --primary-dark: #145252;
+    --primary-light: #2A8B8B;
+    --primary-bg: #EDF6F6;
     --orange: #F26B1D;
     --orange-dark: #D45A10;
     --text: #212121;
@@ -81,17 +81,17 @@
   .header-contacts a:hover { color: var(--primary); }
   .header-right { display: flex; align-items: center; gap: 12px; }
   .btn-cta {
-    background: var(--orange);
+    background: #C0392B;
     color: white;
     padding: 9px 20px;
-    border-radius: var(--radius-sm);
+    border-radius: 50px;
     font-size: 0.86rem;
     font-weight: 700;
     text-decoration: none;
     white-space: nowrap;
     transition: background 0.18s;
   }
-  .btn-cta:hover { background: var(--orange-dark); }
+  .btn-cta:hover { background: #A93226; }
 
   .header-nav {
     border-top: 1px solid var(--border);
@@ -114,6 +114,8 @@
     color: var(--primary);
     border-bottom-color: var(--primary);
   }
+
+  .header-inner { max-width: 1100px; margin: 0 auto; }
 
   /* ─── MAIN CONTENT ────────────────────────────────────────── */
   .app-main { flex: 1; }
@@ -298,8 +300,8 @@
     border-radius: var(--radius);
     min-width: 130px;
   }
-  .total-badge.azienda-badge { background: var(--primary); color: white; }
-  .total-badge.netto-badge   { background: var(--success); color: white; }
+  .total-badge.azienda-badge { background: #C0392B; color: white; }
+  .total-badge.netto-badge   { background: #B7950B; color: white; }
   .badge-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.85; }
   .badge-value { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.4px; line-height: 1.2; }
   .badge-period { font-size: 0.65rem; opacity: 0.75; }
@@ -336,8 +338,8 @@
     display: flex; flex-direction: column;
   }
   .result-card-header { padding: 18px 20px 14px; display: flex; align-items: flex-end; gap: 10px; flex-shrink: 0; }
-  .result-card.azienda .result-card-header { background: var(--primary); color: white; }
-  .result-card.netto   .result-card-header { background: var(--success); color: white; }
+  .result-card.azienda .result-card-header { background: #C0392B; color: white; }
+  .result-card.netto   .result-card-header { background: #B7950B; color: white; }
   .result-card-label   { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; opacity: 0.85; }
   .result-card-total   { font-size: 1.85rem; font-weight: 700; letter-spacing: -0.8px; line-height: 1; }
   .result-card-sublabel { font-size: 0.72rem; opacity: 0.72; margin-left: auto; align-self: flex-end; padding-bottom: 2px; }
@@ -480,6 +482,7 @@
 
 <!-- ══════════════════ HEADER ══════════════════════════════════ -->
 <header class="site-header">
+  <div class="header-inner">
   <div class="header-top">
     <div class="header-left">
       <a href="https://ristohrcare.it" target="_blank" rel="noopener">
@@ -503,6 +506,7 @@
     <a href="https://ristohrcare.it/servizi" target="_blank" rel="noopener">Servizi</a>
     <a href="https://ristohrcare.it/contatti" target="_blank" rel="noopener">Contatti</a>
   </nav>
+  </div>
 </header>
 
 <!-- ══════════════════ APP ═════════════════════════════════════ -->
@@ -848,10 +852,9 @@ function calcConfcommercio(mans) {
   const costoTotale = rlt + inps + inail + rateo1314 + rateoF + rateoP + tfr + fondoEST;
 
   const contribDip = rlt * 0.0929;
-  const enbicDip   = td ? 1.50 : 2.50;
   const quota1314  = state.tredicesimaMensile ? rlt / 6 : 0;
   const quotaP     = state.permessiMensili    ? rlt / 172 * 104 / 12 : 0;
-  const impFiscale = rlt + quota1314 + quotaP - contribDip - enbicDip;
+  const impFiscale = rlt + quota1314 + quotaP - contribDip;
   const impAnnuo   = impFiscale * (state.tredicesimaMensile ? 12 : 14);
   const { noTax, irpefNetta, bonusRenzi } = calcFiscale(impFiscale, impAnnuo, state.tipoContratto);
   const netto = noTax ? impFiscale : impFiscale - irpefNetta + bonusRenzi;
@@ -859,7 +862,7 @@ function calcConfcommercio(mans) {
   return {
     rlt, inps, inail, fondoEST,
     rateo1314, rateoF, rateoP, tfr, costoTotale,
-    contribDip, enbicDip, quota1314, quotaP,
+    contribDip, quota1314, quotaP,
     impFiscale, impAnnuo, irpefNetta, bonusRenzi, noTax, netto,
     liv, mansione: mans.label,
   };
@@ -901,7 +904,7 @@ function buildNettoRows(r, isAnpit) {
     ),
     ...(r.quotaP > 0 ? [{ l: '+ Quota permessi mensile', v: r.quotaP, cls: 'pos' }] : []),
     { l: '− Contributi dipendente (9,29%)',               v: r.contribDip, cls: 'neg' },
-    { l: `− ENBIC dipendente (€${r.enbicDip.toFixed(2)})`, v: r.enbicDip,  cls: 'neg' },
+    ...(isAnpit ? [{ l: `− ENBIC dipendente (€${r.enbicDip.toFixed(2)})`, v: r.enbicDip, cls: 'neg' }] : []),
     { l: 'Imponibile fiscale mensile',                    v: r.impFiscale, cls: '' },
     { l: 'Imponibile annuo stimato',                      v: r.impAnnuo,   cls: '', nomul: true },
     ...(r.noTax

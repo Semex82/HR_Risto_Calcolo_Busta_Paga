@@ -53,15 +53,21 @@
           ]
         },
         {
-          "id": "colazioni_ristorante",
-          "label": "Colazioni e Ristorante",
+          "id": "cucina",
+          "label": "Cucina",
           "mansioni": [
-            { "id": "chef",                    "label": "Chef",                    "livello_anpit": "B1", "livello_confcommercio": "2" },
-            { "id": "primo_cuoco",             "label": "Primo Cuoco",             "livello_anpit": "B2", "livello_confcommercio": "3" },
-            { "id": "secondo_cuoco",           "label": "Secondo Cuoco",           "livello_anpit": "C1", "livello_confcommercio": "4" },
-            { "id": "cuoco_junior",            "label": "Cuoco Junior",            "livello_anpit": "C2", "livello_confcommercio": "5" },
-            { "id": "aiuto_cuoco",             "label": "Aiuto Cuoco",             "livello_anpit": "D1", "livello_confcommercio": "6S" },
-            { "id": "lavapiatti",              "label": "Lavapiatti",              "livello_anpit": "D2", "livello_confcommercio": "7" },
+            { "id": "chef",          "label": "Chef",          "livello_anpit": "B1", "livello_confcommercio": "2" },
+            { "id": "primo_cuoco",   "label": "Primo Cuoco",   "livello_anpit": "B2", "livello_confcommercio": "3" },
+            { "id": "secondo_cuoco", "label": "Secondo Cuoco", "livello_anpit": "C1", "livello_confcommercio": "4" },
+            { "id": "cuoco_junior",  "label": "Cuoco Junior",  "livello_anpit": "C2", "livello_confcommercio": "5" },
+            { "id": "aiuto_cuoco",   "label": "Aiuto Cuoco",   "livello_anpit": "D1", "livello_confcommercio": "6S" },
+            { "id": "lavapiatti",    "label": "Lavapiatti",    "livello_anpit": "D2", "livello_confcommercio": "7" }
+          ]
+        },
+        {
+          "id": "sala",
+          "label": "Sala",
+          "mansioni": [
             { "id": "chef_de_rang",            "label": "Chef de Rang",            "livello_anpit": "C1", "livello_confcommercio": "4" },
             { "id": "cameriere_specializzato", "label": "Cameriere Specializzato", "livello_anpit": "C1", "livello_confcommercio": "4" },
             { "id": "cameriere",               "label": "Cameriere",               "livello_anpit": "C2", "livello_confcommercio": "5" },
