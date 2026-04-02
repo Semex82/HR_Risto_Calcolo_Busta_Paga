@@ -337,9 +337,11 @@
     box-shadow: var(--card-shadow); overflow: hidden;
     display: flex; flex-direction: column;
   }
-  .result-card-header { padding: 18px 20px 14px; display: flex; align-items: flex-end; gap: 10px; flex-shrink: 0; }
-  .result-card.azienda .result-card-header { background: #701111; color: white; }
-  .result-card.netto   .result-card-header { background: #C0622F; color: white; }
+  .result-card.azienda { border: 2px solid #1B3A5C; }
+  .result-card.netto   { border: 2px solid #2D5A3D; }
+  .result-card-header { padding: 18px 20px 14px; display: flex; align-items: flex-end; gap: 10px; flex-shrink: 0; background: white; }
+  .result-card.azienda .result-card-header { color: #1B3A5C; }
+  .result-card.netto   .result-card-header { color: #2D5A3D; }
   .result-card-label   { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; opacity: 0.85; }
   .result-card-total   { font-size: 1.85rem; font-weight: 700; letter-spacing: -0.8px; line-height: 1; }
   .result-card-sublabel { font-size: 0.72rem; opacity: 0.72; margin-left: auto; align-self: flex-end; padding-bottom: 2px; }
