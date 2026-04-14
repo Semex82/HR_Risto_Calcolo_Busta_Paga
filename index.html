@@ -292,6 +292,12 @@
     gap: 10px;
     flex-wrap: wrap;
   }
+  .badge-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    width: 100%;
+  }
   .total-badge {
     display: flex;
     flex-direction: column;
@@ -1291,18 +1297,23 @@ function renderRisultati() {
           Il livello selezionato non prevede contratto di apprendistato
         </div>`;
       } else {
-        const periodiAttivi = periodi.filter(r => !r.isFinale);
-        badgesHTML = periodiAttivi.map((r, i) => `
-          <div class="total-badge azienda-badge">
-            <span class="badge-label">Costo az. periodo ${i + 1}</span>
+        const costoBadges = periodi.map((r, i) => {
+          const lbl = r.isFinale ? 'Livello finale' : `Costo az. P${i + 1}`;
+          return `<div class="total-badge azienda-badge">
+            <span class="badge-label">${lbl}</span>
             <span class="badge-value">${fmt(r.costoTotale * mul)}</span>
             <span class="badge-period">${perLabel}</span>
-          </div>`).join('') + `
-          <div class="total-badge netto-badge">
-            <span class="badge-label">Netto in Busta</span>
-            <span class="badge-value">${fmt(periodi[0].netto * mul)}</span>
+          </div>`;
+        }).join('');
+        const nettoBadges = periodi.map((r, i) => {
+          const lbl = r.isFinale ? 'Netto finale' : `Netto P${i + 1}`;
+          return `<div class="total-badge netto-badge">
+            <span class="badge-label">${lbl}</span>
+            <span class="badge-value">${fmt(r.netto * mul)}</span>
             <span class="badge-period">${perLabel}</span>
           </div>`;
+        }).join('');
+        badgesHTML = `<div class="badge-row">${costoBadges}</div><div class="badge-row">${nettoBadges}</div>`;
 
         const numCols = periodi.length;
         const headers = periodi.map((r, i) => {
