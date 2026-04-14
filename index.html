@@ -520,6 +520,27 @@
   .help-wrap.tip-left .help-tooltip::before {
     left: auto; right: 8px; transform: none;
   }
+
+  /* ─── APPRENDISTA 3-COL GRID ────────────────────────────────── */
+  .apprendista-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .anno-col { display: flex; flex-direction: column; gap: 8px; }
+  .anno-header {
+    text-align: center; font-size: 0.72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--primary-dark); padding: 6px 8px;
+    background: var(--primary-bg); border-radius: var(--radius);
+    border: 1px solid var(--border);
+  }
+  .apprendista-grid .result-card-total { font-size: 1.35rem; }
+  .apprendista-grid .detail-row { font-size: 0.74rem; }
+  @media (max-width: 720px) {
+    .apprendista-grid { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
@@ -874,7 +895,7 @@ function calcFiscale(impFiscale, impAnnuo, tipo) {
 }
 
 // mans = oggetto mansione dal JSON (con livello_anpit, livello_confcommercio, label)
-function calcANPIT(mans) {
+function calcANPIT(mans, inpsAliq = null) {
   const td   = state.tipoContratto === 'TD';
   const perc = state.fulltime ? 1 : state.percParttime / 100;
   const liv  = mans.livello_anpit;
@@ -882,7 +903,8 @@ function calcANPIT(mans) {
   const epmr = (DATA.anpit.epmr[liv] || {})[state.regione] || 0;
 
   const rlt      = (d.minimo + d.immc + epmr) * perc;
-  const inps     = rlt * (td ? 0.314 : 0.30);
+  const inpsRate = inpsAliq !== null ? inpsAliq : (td ? 0.314 : 0.30);
+  const inps     = rlt * inpsRate;
   const inail    = rlt * 0.011;
   const enbicAz  = td ? 4.50 : 21.50;
   const welfare  = 20;
@@ -892,7 +914,8 @@ function calcANPIT(mans) {
   const tfr      = rlt / 12 * 13 / 13.5;
   const costoTotale = rlt + inps + inail + rateo13a + rateoF + rateoP + tfr + enbicAz + welfare;
 
-  const contribDip  = rlt * 0.0929;
+  const contribDipRate = state.apprendista ? 0.0584 : 0.0929;
+  const contribDip  = rlt * contribDipRate;
   const enbicDip    = td ? 1.50 : 2.50;
   const quota13a    = state.tredicesimaMensile ? rlt / 12 : 0;
   const quotaP      = state.permessiMensili    ? rlt / 173 * 48 / 12 : 0;
@@ -901,23 +924,29 @@ function calcANPIT(mans) {
   const { noTax, irpefNetta, bonusRenzi } = calcFiscale(impFiscale, impAnnuo, state.tipoContratto);
   const netto = noTax ? impFiscale : impFiscale - irpefNetta + bonusRenzi;
 
+  const inpsLabel = inpsAliq !== null
+    ? (inpsRate * 100).toFixed(2).replace('.', ',') + '%'
+    : (td ? '31,4%' : '30%');
+
   return {
     rlt, inps, inail, enbicAz, welfare,
     rateo13a, rateoF, rateoP, tfr, costoTotale,
     contribDip, enbicDip, quota13a, quotaP,
     impFiscale, impAnnuo, irpefNetta, bonusRenzi, noTax, netto,
     liv, mansione: mans.label, epmr,
+    inpsLabel, contribDipLabel: state.apprendista ? '5,84%' : '9,29%',
   };
 }
 
-function calcConfcommercio(mans) {
+function calcConfcommercio(mans, inpsAliq = null) {
   const td   = state.tipoContratto === 'TD';
   const perc = state.fulltime ? 1 : state.percParttime / 100;
   const liv  = mans.livello_confcommercio;
   const d    = DATA.confcommercio.livelli[liv];
 
   const rlt       = (d.minimo + d.contingenza + d.indennita_funzione) * perc;
-  const inps      = rlt * (td ? 0.314 : 0.30);
+  const inpsRate  = inpsAliq !== null ? inpsAliq : (td ? 0.314 : 0.30);
+  const inps      = rlt * inpsRate;
   const inail     = rlt * 0.011;
   const fondoEST  = td ? 0 : 12;
   const rateo1314 = (rlt + inps + inail) / 6;
@@ -926,7 +955,8 @@ function calcConfcommercio(mans) {
   const tfr       = rlt / 12 * 14 / 13.5;
   const costoTotale = rlt + inps + inail + rateo1314 + rateoF + rateoP + tfr + fondoEST;
 
-  const contribDip = rlt * 0.0929;
+  const contribDipRate = state.apprendista ? 0.0584 : 0.0929;
+  const contribDip = rlt * contribDipRate;
   const quota1314  = state.tredicesimaMensile ? rlt / 6 : 0;
   const quotaP     = state.permessiMensili    ? rlt / 172 * 104 / 12 : 0;
   const impFiscale = rlt + quota1314 + quotaP - contribDip;
@@ -934,12 +964,17 @@ function calcConfcommercio(mans) {
   const { noTax, irpefNetta, bonusRenzi } = calcFiscale(impFiscale, impAnnuo, state.tipoContratto);
   const netto = noTax ? impFiscale : impFiscale - irpefNetta + bonusRenzi;
 
+  const inpsLabel = inpsAliq !== null
+    ? (inpsRate * 100).toFixed(2).replace('.', ',') + '%'
+    : (td ? '31,4%' : '30%');
+
   return {
     rlt, inps, inail, fondoEST,
     rateo1314, rateoF, rateoP, tfr, costoTotale,
     contribDip, quota1314, quotaP,
     impFiscale, impAnnuo, irpefNetta, bonusRenzi, noTax, netto,
     liv, mansione: mans.label,
+    inpsLabel, contribDipLabel: state.apprendista ? '5,84%' : '9,29%',
   };
 }
 
@@ -948,24 +983,25 @@ function fmt(n) {
 }
 
 function buildCostoRows(r, isAnpit) {
+  const inpsLbl = r.inpsLabel || (state.tipoContratto==='TI' ? '30%' : '31,4%');
   return isAnpit ? [
-    { l: 'Retribuzione Lorda (RLT)',                                    v: r.rlt },
-    { l: `INPS azienda (${state.tipoContratto==='TI'?'30%':'31,4%'})`, v: r.inps },
-    { l: 'INAIL (1,1%)',                                                v: r.inail },
-    { l: 'Rateo 13ª',                                                   v: r.rateo13a },
-    { l: 'Rateo ferie',                                                 v: r.rateoF },
-    { l: 'Rateo permessi',                                              v: r.rateoP },
-    { l: 'TFR',                                                         v: r.tfr },
-    { l: 'ENBIC azienda (fisso)',                                       v: r.enbicAz },
-    { l: 'Welfare (fisso)',                                             v: r.welfare },
+    { l: 'Retribuzione Lorda (RLT)',        v: r.rlt },
+    { l: `INPS azienda (${inpsLbl})`,       v: r.inps },
+    { l: 'INAIL (1,1%)',                    v: r.inail },
+    { l: 'Rateo 13ª',                       v: r.rateo13a },
+    { l: 'Rateo ferie',                     v: r.rateoF },
+    { l: 'Rateo permessi',                  v: r.rateoP },
+    { l: 'TFR',                             v: r.tfr },
+    { l: 'ENBIC azienda (fisso)',           v: r.enbicAz },
+    { l: 'Welfare (fisso)',                 v: r.welfare },
   ] : [
-    { l: 'Retribuzione Lorda (RLT)',                                    v: r.rlt },
-    { l: `INPS azienda (${state.tipoContratto==='TI'?'30%':'31,4%'})`, v: r.inps },
-    { l: 'INAIL (1,1%)',                                                v: r.inail },
-    { l: 'Rateo 13ª + 14ª',                                             v: r.rateo1314 },
-    { l: 'Rateo ferie',                                                 v: r.rateoF },
-    { l: 'Rateo permessi',                                              v: r.rateoP },
-    { l: 'TFR',                                                         v: r.tfr },
+    { l: 'Retribuzione Lorda (RLT)',        v: r.rlt },
+    { l: `INPS azienda (${inpsLbl})`,       v: r.inps },
+    { l: 'INAIL (1,1%)',                    v: r.inail },
+    { l: 'Rateo 13ª + 14ª',                 v: r.rateo1314 },
+    { l: 'Rateo ferie',                     v: r.rateoF },
+    { l: 'Rateo permessi',                  v: r.rateoP },
+    { l: 'TFR',                             v: r.tfr },
     ...(r.fondoEST > 0 ? [{ l: 'Fondo EST (fisso)', v: r.fondoEST }] : []),
   ];
 }
@@ -978,7 +1014,7 @@ function buildNettoRows(r, isAnpit) {
       : (r.quota1314 > 0 ? [{ l: '+ Quota 13ª+14ª mensile', v: r.quota1314, cls: 'pos' }] : [])
     ),
     ...(r.quotaP > 0 ? [{ l: '+ Quota permessi mensile', v: r.quotaP, cls: 'pos' }] : []),
-    { l: '− Contributi dipendente (9,29%)',               v: r.contribDip, cls: 'neg' },
+    { l: `− Contributi dipendente (${r.contribDipLabel||'9,29%'})`, v: r.contribDip, cls: 'neg' },
     ...(isAnpit ? [{ l: `− ENBIC dipendente (€${r.enbicDip.toFixed(2)})`, v: r.enbicDip, cls: 'neg' }] : []),
     { l: 'Imponibile fiscale mensile',                    v: r.impFiscale, cls: '' },
     { l: 'Imponibile annuo stimato',                      v: r.impAnnuo,   cls: '', nomul: true },
@@ -990,6 +1026,64 @@ function buildNettoRows(r, isAnpit) {
         ]
     ),
   ];
+}
+
+// ─── APPRENDISTATO ────────────────────────────────────────────────────────────
+function getInpsAliquote() {
+  return state.piuDiNoveDipendenti
+    ? [0.1161, 0.1161, 0.1161]
+    : [0.0311, 0.0461, 0.1161];
+}
+
+function buildResultCards(r, isAnpit, mul, perLabel) {
+  const costoRows = buildCostoRows(r, isAnpit);
+  const nettoRows = buildNettoRows(r, isAnpit);
+  const costoRowsHTML = costoRows.map(row => `
+      <div class="detail-row">
+        <span class="lbl">${row.l}</span>
+        <span class="val">${fmt(row.v * mul)}</span>
+      </div>`).join('');
+  const nettoRowsHTML = nettoRows.map(row => {
+    const displayVal = row.nomul ? row.v : row.v * mul;
+    const prefix = row.cls === 'neg' ? '−\u00A0' : '';
+    return `<div class="detail-row ${row.cls||''}">
+        <span class="lbl">${row.l}</span>
+        <span class="val">${row.v === 0 ? '€\u00A00,00' : prefix + fmt(displayVal)}</span>
+      </div>`;
+  }).join('');
+  return `
+    <div class="result-card azienda">
+      <div class="result-card-header">
+        <div>
+          <div class="result-card-label">Costo Azienda</div>
+          <div class="result-card-total">${fmt(r.costoTotale * mul)}</div>
+        </div>
+        <div class="result-card-sublabel">${perLabel}</div>
+      </div>
+      <div class="result-card-body">
+        <div class="detail-rows">${costoRowsHTML}</div>
+        <div class="detail-row total">
+          <span class="lbl">TOTALE COSTO</span>
+          <span class="val">${fmt(r.costoTotale * mul)}</span>
+        </div>
+      </div>
+    </div>
+    <div class="result-card netto">
+      <div class="result-card-header">
+        <div>
+          <div class="result-card-label">Netto in Busta</div>
+          <div class="result-card-total">${fmt(r.netto * mul)}</div>
+        </div>
+        <div class="result-card-sublabel">${perLabel}</div>
+      </div>
+      <div class="result-card-body">
+        <div class="detail-rows">${nettoRowsHTML}</div>
+        <div class="detail-row total">
+          <span class="lbl">NETTO IN BUSTA</span>
+          <span class="val">${fmt(r.netto * mul)}</span>
+        </div>
+      </div>
+    </div>`;
 }
 
 // ─── TOGGLE ACCORDION ─────────────────────────────────────────────────────────
@@ -1031,36 +1125,36 @@ function renderRisultati() {
   ];
 
   const blocksHTML = mansioni.map(m => {
-    const r   = isAnpit ? calcANPIT(m) : calcConfcommercio(m);
-    const id  = m.id;
+    const id        = m.id;
     const isExpanded = expandedBlocks.has(id);
-    const costoRows  = buildCostoRows(r, isAnpit);
-    const nettoRows  = buildNettoRows(r, isAnpit);
-    const livLabel   = isAnpit ? m.livello_anpit : m.livello_confcommercio;
+    const livLabel  = isAnpit ? m.livello_anpit : m.livello_confcommercio;
 
-    const costoRowsHTML = costoRows.map(row => `
-      <div class="detail-row">
-        <span class="lbl">${row.l}</span>
-        <span class="val">${fmt(row.v * mul)}</span>
-      </div>`).join('');
+    let badgesHTML, bodyHTML;
 
-    const nettoRowsHTML = nettoRows.map(row => {
-      const displayVal = row.nomul ? row.v : row.v * mul;
-      const prefix = row.cls === 'neg' ? '−\u00A0' : '';
-      return `<div class="detail-row ${row.cls||''}">
-        <span class="lbl">${row.l}</span>
-        <span class="val">${row.v === 0 ? '€\u00A00,00' : prefix + fmt(displayVal)}</span>
-      </div>`;
-    }).join('');
-
-    return `
-    <div class="mansione-block">
-      <div class="mansione-header" onclick="toggleBlock('${id}')">
-        <div class="mansione-info">
-          <span class="mansione-name">${m.label}</span>
-          <span class="mansione-livello">Livello ${livLabel}</span>
-        </div>
-        <div class="mansione-totals">
+    if (state.apprendista) {
+      const aliquote = getInpsAliquote();
+      const results  = aliquote.map(aliq => isAnpit ? calcANPIT(m, aliq) : calcConfcommercio(m, aliq));
+      badgesHTML = results.map((r, i) => `
+          <div class="total-badge azienda-badge">
+            <span class="badge-label">Costo az. anno ${i + 1}</span>
+            <span class="badge-value">${fmt(r.costoTotale * mul)}</span>
+            <span class="badge-period">${perLabel}</span>
+          </div>`).join('') + `
+          <div class="total-badge netto-badge">
+            <span class="badge-label">Netto in Busta</span>
+            <span class="badge-value">${fmt(results[0].netto * mul)}</span>
+            <span class="badge-period">${perLabel}</span>
+          </div>`;
+      bodyHTML = `<div class="apprendista-grid">${
+        results.map((r, i) => `
+          <div class="anno-col">
+            <div class="anno-header">Anno ${i + 1}</div>
+            ${buildResultCards(r, isAnpit, mul, perLabel)}
+          </div>`).join('')
+      }</div>`;
+    } else {
+      const r = isAnpit ? calcANPIT(m) : calcConfcommercio(m);
+      badgesHTML = `
           <div class="total-badge azienda-badge">
             <span class="badge-label">Costo Azienda</span>
             <span class="badge-value">${fmt(r.costoTotale * mul)}</span>
@@ -1070,48 +1164,25 @@ function renderRisultati() {
             <span class="badge-label">Netto in Busta</span>
             <span class="badge-value">${fmt(r.netto * mul)}</span>
             <span class="badge-period">${perLabel}</span>
-          </div>
+          </div>`;
+      bodyHTML = `<div class="results-grid">${buildResultCards(r, isAnpit, mul, perLabel)}</div>`;
+    }
+
+    return `
+    <div class="mansione-block">
+      <div class="mansione-header" onclick="toggleBlock('${id}')">
+        <div class="mansione-info">
+          <span class="mansione-name">${m.label}</span>
+          <span class="mansione-livello">Livello ${livLabel}</span>
         </div>
+        <div class="mansione-totals">${badgesHTML}</div>
         <button id="block-btn-${id}" class="toggle-detail-btn" aria-expanded="${isExpanded}"
                 onclick="event.stopPropagation(); toggleBlock('${id}')">
           ${isExpanded ? '▲ Chiudi' : '▼ Dettagli'}
         </button>
       </div>
       <div id="block-body-${id}" class="mansione-body ${isExpanded ? 'expanded' : 'collapsed'}">
-        <div class="results-grid">
-          <div class="result-card azienda">
-            <div class="result-card-header">
-              <div>
-                <div class="result-card-label">Costo Azienda</div>
-                <div class="result-card-total">${fmt(r.costoTotale * mul)}</div>
-              </div>
-              <div class="result-card-sublabel">${perLabel}</div>
-            </div>
-            <div class="result-card-body">
-              <div class="detail-rows">${costoRowsHTML}</div>
-              <div class="detail-row total">
-                <span class="lbl">TOTALE COSTO</span>
-                <span class="val">${fmt(r.costoTotale * mul)}</span>
-              </div>
-            </div>
-          </div>
-          <div class="result-card netto">
-            <div class="result-card-header">
-              <div>
-                <div class="result-card-label">Netto in Busta</div>
-                <div class="result-card-total">${fmt(r.netto * mul)}</div>
-              </div>
-              <div class="result-card-sublabel">${perLabel}</div>
-            </div>
-            <div class="result-card-body">
-              <div class="detail-rows">${nettoRowsHTML}</div>
-              <div class="detail-row total">
-                <span class="lbl">NETTO IN BUSTA</span>
-                <span class="val">${fmt(r.netto * mul)}</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        ${bodyHTML}
       </div>
     </div>`;
   }).join('');
