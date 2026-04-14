@@ -673,6 +673,8 @@ let state = {
   regione: 'Lombardia',
   tredicesimaMensile: false,
   permessiMensili: false,
+  apprendista: false,
+  piuDiNoveDipendenti: false,
   periodo: 'mensile',
 };
 
@@ -814,6 +816,18 @@ function renderParametri() {
         <div class="toggle-row">
           <span class="toggle-label">Permessi pagati mensilmente?</span>
           <label class="toggle"><input type="checkbox" id="tog-perm" ${state.permessiMensili?'checked':''}><span class="slider"></span></label>
+        </div>
+      </div>
+      <div class="form-group full">
+        <div class="toggle-row">
+          <span class="toggle-label">Apprendista</span>
+          <label class="toggle"><input type="checkbox" id="tog-apprendista" ${state.apprendista?'checked':''}><span class="slider"></span></label>
+        </div>
+      </div>
+      <div class="form-group full" id="field-9dip" ${state.apprendista?'':'style="display:none"'}>
+        <div class="toggle-row">
+          <span class="toggle-label">Azienda con più di 9 dipendenti</span>
+          <label class="toggle"><input type="checkbox" id="tog-9dip" ${state.piuDiNoveDipendenti?'checked':''}><span class="slider"></span></label>
         </div>
       </div>
     </div>
@@ -1170,6 +1184,21 @@ function attachListeners() {
   const togP = document.getElementById('tog-perm');
   if (togP) togP.addEventListener('change', () => { state.permessiMensili = togP.checked; });
 
+  const togApp = document.getElementById('tog-apprendista');
+  if (togApp) togApp.addEventListener('change', () => {
+    state.apprendista = togApp.checked;
+    if (!state.apprendista) {
+      state.piuDiNoveDipendenti = false;
+      const tog9 = document.getElementById('tog-9dip');
+      if (tog9) tog9.checked = false;
+    }
+    const f9 = document.getElementById('field-9dip');
+    if (f9) f9.style.display = state.apprendista ? '' : 'none';
+  });
+
+  const tog9dip = document.getElementById('tog-9dip');
+  if (tog9dip) tog9dip.addEventListener('change', () => { state.piuDiNoveDipendenti = tog9dip.checked; });
+
   document.querySelectorAll('[data-action="periodo"]').forEach(b =>
     b.addEventListener('click', () => { state.periodo = b.dataset.val; renderStep(); }));
 
@@ -1196,7 +1225,8 @@ function attachListeners() {
   if (resetBtn) resetBtn.addEventListener('click', () => {
     state = { step: 0, settore: null, area: null,
       ccnl: 'confcommercio', tipoContratto: 'TI', fulltime: true, percParttime: 100,
-      regione: 'Lombardia', tredicesimaMensile: false, permessiMensili: false, periodo: 'mensile' };
+      regione: 'Lombardia', tredicesimaMensile: false, permessiMensili: false,
+      apprendista: false, piuDiNoveDipendenti: false, periodo: 'mensile' };
     expandedBlocks.clear();
     goTo(0);
   });
