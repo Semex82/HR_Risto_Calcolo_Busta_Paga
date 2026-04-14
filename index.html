@@ -478,6 +478,48 @@
   @media (max-width: 480px) {
     .header-nav a { padding: 8px 10px; font-size: 0.78rem; }
   }
+
+  /* ─── HELP TOOLTIP ──────────────────────────────────────────── */
+  .help-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+    margin-left: 6px;
+  }
+  .help-icon {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--text-muted); color: #fff;
+    font-size: 0.65rem; font-weight: 700; font-family: inherit;
+    border: none; cursor: pointer; padding: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    line-height: 1; flex-shrink: 0; transition: background 0.15s;
+  }
+  .help-icon:hover, .help-icon:focus { background: var(--primary); outline: none; }
+  .help-tooltip {
+    display: none; position: absolute;
+    top: calc(100% + 7px); left: 50%; transform: translateX(-50%);
+    background: #1C2B38; color: #fff;
+    font-size: 0.74rem; font-weight: 400; line-height: 1.5;
+    padding: 9px 13px; border-radius: 5px; width: 230px;
+    z-index: 500; box-shadow: 0 3px 12px rgba(0,0,0,0.22);
+    text-transform: none; letter-spacing: 0; pointer-events: none;
+  }
+  .help-tooltip::before {
+    content: ''; position: absolute;
+    top: -5px; left: 50%; transform: translateX(-50%);
+    width: 0; height: 0;
+    border: 5px solid transparent;
+    border-top-width: 0; border-bottom-color: #1C2B38;
+  }
+  .help-wrap.open .help-tooltip { display: block; }
+  /* tooltip a sinistra per icone vicine al bordo destro */
+  .help-wrap.tip-left .help-tooltip {
+    left: auto; right: 0; transform: none;
+  }
+  .help-wrap.tip-left .help-tooltip::before {
+    left: auto; right: 8px; transform: none;
+  }
 </style>
 </head>
 <body>
@@ -637,8 +679,25 @@ let state = {
 // Mantiene quali accordion sono espansi tra re-render
 let expandedBlocks = new Set();
 
+// ─── HELP TOOLTIPS ────────────────────────────────────────────────────────────
+function initTooltips() {
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.help-icon');
+    if (btn) {
+      e.stopPropagation();
+      const wrap = btn.closest('.help-wrap');
+      const isOpen = wrap.classList.contains('open');
+      document.querySelectorAll('.help-wrap.open').forEach(w => w.classList.remove('open'));
+      if (!isOpen) wrap.classList.add('open');
+    } else if (!e.target.closest('.help-wrap')) {
+      document.querySelectorAll('.help-wrap.open').forEach(w => w.classList.remove('open'));
+    }
+  });
+}
+
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 async function init() {
+  initTooltips();
   try {
     const [m, a, c] = await Promise.all([
       fetch('mansioni.json').then(r => r.json()),
@@ -683,7 +742,7 @@ function renderStep() {
 function renderSettore() {
   const icons = { ristorazione:'🍴', hotel:'🏨' };
   return `<div class="card">
-    <div class="card-title">Seleziona il Settore</div>
+    <div class="card-title">Seleziona il Settore <span class="help-wrap"><button class="help-icon" aria-label="Aiuto">?</button><div class="help-tooltip">Seleziona se lavori in un ristorante o in una struttura alberghiera</div></span></div>
     <div class="card-subtitle">Scegli il comparto di appartenenza dell'azienda</div>
     <div class="option-grid">
       ${DATA.mansioni.categorie.map(c => `
@@ -701,7 +760,7 @@ function renderArea() {
   const cat = DATA.mansioni.categorie.find(c => c.id === state.settore);
   const icons = { cucina:'👨‍🍳', sala:'🍷', amministrativo:'💼', reception:'🛎', colazioni_ristorante:'🥐', pulizia:'🧹', manutenzione:'🔧' };
   return `<div class="card">
-    <div class="card-title">Seleziona l'Area</div>
+    <div class="card-title">Seleziona l'Area <span class="help-wrap"><button class="help-icon" aria-label="Aiuto">?</button><div class="help-tooltip">Scegli il reparto in cui opera il dipendente</div></span></div>
     <div class="card-subtitle">Scegli il reparto — i risultati mostreranno <strong>tutte le mansioni</strong> di quell'area</div>
     <div class="option-grid">
       ${cat.settori.map(s => `
@@ -720,7 +779,7 @@ function renderParametri() {
   const regioniOptions = Object.entries(REGIONI_LABEL)
     .map(([k,v]) => `<option value="${k}" ${state.regione===k?'selected':''}>${v}</option>`).join('');
   return `<div class="card">
-    <div class="card-title">Parametri del Contratto</div>
+    <div class="card-title">Parametri del Contratto <span class="help-wrap"><button class="help-icon" aria-label="Aiuto">?</button><div class="help-tooltip">Inserisci le caratteristiche del contratto che vuoi simulare</div></span></div>
     <div class="card-subtitle">Configura le condizioni contrattuali del dipendente</div>
     <div class="form-grid">
       <div class="form-group">
@@ -1052,16 +1111,19 @@ function renderRisultati() {
        </div>` : '';
 
   return `
-    <div class="summary-bar">${summaryItems.join(' &nbsp;|&nbsp; ')}</div>
+    <div class="summary-bar">${summaryItems.join(' &nbsp;|&nbsp; ')} <span class="help-wrap" style="margin-left:auto"><button class="help-icon" aria-label="Aiuto risultati">?</button><div class="help-tooltip">Stima indicativa. Verifica sempre con il tuo consulente del lavoro</div></span></div>
 
     <div class="results-controls">
       <div class="seg-toggle" id="toggle-periodo">
         <button class="seg-btn ${state.periodo==='mensile'?'active':''}" data-action="periodo" data-val="mensile">Mensile</button>
         <button class="seg-btn ${state.periodo==='annuale'?'active':''}" data-action="periodo" data-val="annuale">Annuale</button>
       </div>
-      <div class="seg-toggle ccnl" id="toggle-ccnl">
-        <button class="seg-btn ${state.ccnl==='confcommercio'?'active':''}" data-action="ccnl" data-val="confcommercio">CCNL Confcommercio</button>
-        <button class="seg-btn ${state.ccnl==='anpit'?'active':''}" data-action="ccnl" data-val="anpit">CCNL ANPIT</button>
+      <div style="display:inline-flex;align-items:center;gap:6px">
+        <div class="seg-toggle ccnl" id="toggle-ccnl">
+          <button class="seg-btn ${state.ccnl==='confcommercio'?'active':''}" data-action="ccnl" data-val="confcommercio">CCNL Confcommercio</button>
+          <button class="seg-btn ${state.ccnl==='anpit'?'active':''}" data-action="ccnl" data-val="anpit">CCNL ANPIT</button>
+        </div>
+        <span class="help-wrap tip-left"><button class="help-icon" aria-label="Aiuto CCNL">?</button><div class="help-tooltip">Scegli il contratto collettivo applicato dalla tua azienda</div></span>
       </div>
     </div>
 
