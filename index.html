@@ -534,7 +534,16 @@
     text-transform: uppercase; letter-spacing: 0.5px;
     color: var(--primary-dark); padding: 6px 8px;
     background: var(--primary-bg); border-radius: var(--radius);
-    border: 1px solid var(--border);
+    border: 1px solid var(--border); line-height: 1.4;
+  }
+  .anno-subheader {
+    display: block; font-size: 0.65rem; font-weight: 500;
+    text-transform: none; letter-spacing: 0; opacity: 0.72; margin-top: 1px;
+  }
+  .apprendista-non-previsto {
+    padding: 14px 18px; font-size: 0.83rem; color: #856404;
+    background: #FFF9E6; border: 1px solid #F0C040;
+    border-radius: var(--radius); text-align: center; margin-top: 14px;
   }
   .apprendista-grid .result-card-total { font-size: 1.35rem; }
   .apprendista-grid .detail-row { font-size: 0.74rem; }
@@ -668,7 +677,7 @@
 </footer>
 
 <script>
-let DATA = { mansioni: null, anpit: null, confcommercio: null };
+let DATA = { mansioni: null, anpit: null, confcommercio: null, apprendistato_anpit: null, apprendistato_confcommercio: null };
 
 // Step 3 (Mansione) eliminato — ora il wizard ha 4 step
 const STEPS = [
@@ -722,12 +731,15 @@ function initTooltips() {
 async function init() {
   initTooltips();
   try {
-    const [m, a, c] = await Promise.all([
+    const [m, a, c, aa, ac] = await Promise.all([
       fetch('mansioni.json').then(r => r.json()),
       fetch('ccnl_anpit.json').then(r => r.json()),
       fetch('ccnl_confcommercio.json').then(r => r.json()),
+      fetch('apprendistato_anpit.json').then(r => r.json()),
+      fetch('apprendistato_confcommercio.json').then(r => r.json()),
     ]);
     DATA.mansioni = m; DATA.anpit = a; DATA.confcommercio = c;
+    DATA.apprendistato_anpit = aa; DATA.apprendistato_confcommercio = ac;
     document.getElementById('loading').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
     renderProgress(); renderStep();
@@ -1029,6 +1041,114 @@ function buildNettoRows(r, isAnpit) {
 }
 
 // ─── APPRENDISTATO ────────────────────────────────────────────────────────────
+function calcApprendistoANPIT(mans) {
+  const appData = DATA.apprendistato_anpit;
+  const liv = mans.livello_anpit;
+  if (appData.livelli_non_previsti.includes(liv)) return null;
+  const prog = appData.progressioni[liv];
+  if (!prog) return null;
+
+  const perc = state.fulltime ? 1 : state.percParttime / 100;
+  const td   = state.tipoContratto === 'TD';
+  const dipAliq = appData.contributi.dipendente;
+  const contrib = appData.contributi;
+  const inpsRates = state.piuDiNoveDipendenti
+    ? [contrib.azienda_oltre_9_dip.tutti_i_periodi, contrib.azienda_oltre_9_dip.tutti_i_periodi]
+    : [contrib.azienda_fino_9_dip.periodo_1,        contrib.azienda_fino_9_dip.periodo_2];
+
+  return ['periodo_1', 'periodo_2']
+    .filter(pk => prog[pk].durata_mesi > 0)
+    .map((pk, i) => {
+      const pd       = prog[pk];
+      const dLiv     = DATA.anpit.livelli[pd.livello];
+      const epmr     = (DATA.anpit.epmr[pd.livello] || {})[state.regione] || 0;
+      const rlt      = (dLiv.minimo + dLiv.immc + epmr) * perc;
+      const inpsRate = inpsRates[i];
+      const inps     = rlt * inpsRate;
+      const inail    = rlt * 0.011;
+      const enbicAz  = td ? 4.50 : 21.50;
+      const welfare  = 20;
+      const rateo13a = (rlt + inps + inail) / 12;
+      const rateoF   = (rlt + inps) / 173 * 160 / 12;
+      const rateoP   = (rlt + inps) / 173 * 48  / 12;
+      const tfr      = rlt / 12 * 13 / 13.5;
+      const costoTotale = rlt + inps + inail + rateo13a + rateoF + rateoP + tfr + enbicAz + welfare;
+
+      const contribDip = rlt * dipAliq;
+      const enbicDip   = td ? 1.50 : 2.50;
+      const quota13a   = state.tredicesimaMensile ? rlt / 12 : 0;
+      const quotaP     = state.permessiMensili    ? rlt / 173 * 48 / 12 : 0;
+      const impFiscale = rlt + quota13a + quotaP - contribDip - enbicDip;
+      const impAnnuo   = impFiscale * (state.tredicesimaMensile ? 12 : 13);
+      const { noTax, irpefNetta, bonusRenzi } = calcFiscale(impFiscale, impAnnuo, state.tipoContratto);
+      const netto = noTax ? impFiscale : impFiscale - irpefNetta + bonusRenzi;
+
+      return {
+        rlt, inps, inail, enbicAz, welfare,
+        rateo13a, rateoF, rateoP, tfr, costoTotale,
+        contribDip, enbicDip, quota13a, quotaP,
+        impFiscale, impAnnuo, irpefNetta, bonusRenzi, noTax, netto,
+        inpsLabel: (inpsRate * 100).toFixed(2).replace('.', ',') + '%',
+        contribDipLabel: '5,84%',
+        durataMesi: pd.durata_mesi,
+        livLabel: pd.livello,
+      };
+    });
+}
+
+function calcApprendistoConfcommercio(mans) {
+  const appData = DATA.apprendistato_confcommercio;
+  const liv = mans.livello_confcommercio;
+  if (appData.livelli_non_previsti.includes(liv)) return null;
+  const livData = appData.livelli[liv];
+  if (!livData) return null;
+
+  const perc = state.fulltime ? 1 : state.percParttime / 100;
+  const td   = state.tipoContratto === 'TD';
+  const dipAliq = appData.contributi.dipendente;
+  const contrib = appData.contributi;
+  const inpsRates = state.piuDiNoveDipendenti
+    ? [contrib.azienda_oltre_9_dip.tutti_i_periodi,
+       contrib.azienda_oltre_9_dip.tutti_i_periodi,
+       contrib.azienda_oltre_9_dip.tutti_i_periodi]
+    : [contrib.azienda_fino_9_dip.periodo_1,
+       contrib.azienda_fino_9_dip.periodo_2,
+       contrib.azienda_fino_9_dip.periodo_3];
+
+  return ['periodo_1', 'periodo_2', 'periodo_3'].map((pk, i) => {
+    const pd       = livData[pk];
+    const rlt      = pd.totale * perc;
+    const inpsRate = inpsRates[i];
+    const inps     = rlt * inpsRate;
+    const inail    = rlt * 0.011;
+    const fondoEST = td ? 0 : 12;
+    const rateo1314 = (rlt + inps + inail) / 6;
+    const rateoF    = (rlt + inps) / 172 * 173 / 12;
+    const rateoP    = (rlt + inps) / 172 * 104 / 12;
+    const tfr       = rlt / 12 * 14 / 13.5;
+    const costoTotale = rlt + inps + inail + rateo1314 + rateoF + rateoP + tfr + fondoEST;
+
+    const contribDip = rlt * dipAliq;
+    const quota1314  = state.tredicesimaMensile ? rlt / 6 : 0;
+    const quotaP     = state.permessiMensili    ? rlt / 172 * 104 / 12 : 0;
+    const impFiscale = rlt + quota1314 + quotaP - contribDip;
+    const impAnnuo   = impFiscale * (state.tredicesimaMensile ? 12 : 14);
+    const { noTax, irpefNetta, bonusRenzi } = calcFiscale(impFiscale, impAnnuo, state.tipoContratto);
+    const netto = noTax ? impFiscale : impFiscale - irpefNetta + bonusRenzi;
+
+    return {
+      rlt, inps, inail, fondoEST,
+      rateo1314, rateoF, rateoP, tfr, costoTotale,
+      contribDip, quota1314, quotaP,
+      impFiscale, impAnnuo, irpefNetta, bonusRenzi, noTax, netto,
+      inpsLabel: (inpsRate * 100).toFixed(2).replace('.', ',') + '%',
+      contribDipLabel: '5,84%',
+      durataMesi: 12,
+      livLabel: pd.mesi,
+    };
+  });
+}
+
 function getInpsAliquote() {
   return state.piuDiNoveDipendenti
     ? [0.1161, 0.1161, 0.1161]
@@ -1132,26 +1252,40 @@ function renderRisultati() {
     let badgesHTML, bodyHTML;
 
     if (state.apprendista) {
-      const aliquote = getInpsAliquote();
-      const results  = aliquote.map(aliq => isAnpit ? calcANPIT(m, aliq) : calcConfcommercio(m, aliq));
-      badgesHTML = results.map((r, i) => `
+      const periodi = isAnpit ? calcApprendistoANPIT(m) : calcApprendistoConfcommercio(m);
+      if (periodi === null) {
+        badgesHTML = `
+          <div class="total-badge" style="background:#FFF9E6;border:1.5px solid #F0C040;min-width:auto;padding:7px 14px">
+            <span class="badge-label" style="color:#856404;text-transform:none;font-size:0.72rem">Apprendistato non previsto</span>
+          </div>`;
+        bodyHTML = `<div class="apprendista-non-previsto">
+          Il livello selezionato non prevede contratto di apprendistato
+        </div>`;
+      } else {
+        badgesHTML = periodi.map((r, i) => `
           <div class="total-badge azienda-badge">
-            <span class="badge-label">Costo az. anno ${i + 1}</span>
+            <span class="badge-label">Costo az. periodo ${i + 1}</span>
             <span class="badge-value">${fmt(r.costoTotale * mul)}</span>
             <span class="badge-period">${perLabel}</span>
           </div>`).join('') + `
           <div class="total-badge netto-badge">
             <span class="badge-label">Netto in Busta</span>
-            <span class="badge-value">${fmt(results[0].netto * mul)}</span>
+            <span class="badge-value">${fmt(periodi[0].netto * mul)}</span>
             <span class="badge-period">${perLabel}</span>
           </div>`;
-      bodyHTML = `<div class="apprendista-grid">${
-        results.map((r, i) => `
-          <div class="anno-col">
-            <div class="anno-header">Anno ${i + 1}</div>
-            ${buildResultCards(r, isAnpit, mul, perLabel)}
-          </div>`).join('')
-      }</div>`;
+        bodyHTML = `<div class="apprendista-grid">${
+          periodi.map((r, i) => {
+            const sub = isAnpit
+              ? `${r.durataMesi} mesi · Liv. ${r.livLabel}`
+              : `${r.durataMesi} mesi · ${r.livLabel}`;
+            return `
+              <div class="anno-col">
+                <div class="anno-header">Periodo ${i + 1}<span class="anno-subheader">${sub}</span></div>
+                ${buildResultCards(r, isAnpit, mul, perLabel)}
+              </div>`;
+          }).join('')
+        }</div>`;
+      }
     } else {
       const r = isAnpit ? calcANPIT(m) : calcConfcommercio(m);
       badgesHTML = `

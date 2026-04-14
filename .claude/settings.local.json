@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:ristohrcare.it)",
+      "Bash(python3:*)"
+    ]
+  }
+}

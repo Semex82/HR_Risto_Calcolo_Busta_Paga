@@ -1,0 +1,171 @@
+{
+  "note": "Retribuzioni già tabellate per periodo. Totale = minimo + contingenza (senza indennità di funzione)",
+  "livelli": {
+    "2": {
+      "periodo_1": {
+        "mesi": "0-12",
+        "minimo": 1069.86,
+        "contingenza": 425.27,
+        "totale": 1495.14
+      },
+      "periodo_2": {
+        "mesi": "13-24",
+        "minimo": 1136.73,
+        "contingenza": 451.85,
+        "totale": 1588.58
+      },
+      "periodo_3": {
+        "mesi": "25-36",
+        "minimo": 1203.6,
+        "contingenza": 478.43,
+        "totale": 1682.03
+      },
+      "durata_totale_mesi": 36
+    },
+    "3": {
+      "periodo_1": {
+        "mesi": "0-12",
+        "minimo": 983.1,
+        "contingenza": 422.61,
+        "totale": 1405.71
+      },
+      "periodo_2": {
+        "mesi": "13-24",
+        "minimo": 1044.55,
+        "contingenza": 449.02,
+        "totale": 1493.57
+      },
+      "periodo_3": {
+        "mesi": "25-36",
+        "minimo": 1105.99,
+        "contingenza": 475.43,
+        "totale": 1581.43
+      },
+      "durata_totale_mesi": 36
+    },
+    "4": {
+      "periodo_1": {
+        "mesi": "0-12",
+        "minimo": 902.2,
+        "contingenza": 419.95,
+        "totale": 1322.15
+      },
+      "periodo_2": {
+        "mesi": "13-24",
+        "minimo": 958.59,
+        "contingenza": 446.2,
+        "totale": 1404.79
+      },
+      "periodo_3": {
+        "mesi": "25-36",
+        "minimo": 1014.98,
+        "contingenza": 472.45,
+        "totale": 1487.42
+      },
+      "durata_totale_mesi": 36
+    },
+    "5": {
+      "periodo_1": {
+        "mesi": "0-12",
+        "minimo": 817.19,
+        "contingenza": 417.9,
+        "totale": 1235.09
+      },
+      "periodo_2": {
+        "mesi": "13-24",
+        "minimo": 868.27,
+        "contingenza": 444.01,
+        "totale": 1312.28
+      },
+      "periodo_3": {
+        "mesi": "25-36",
+        "minimo": 919.34,
+        "contingenza": 470.13,
+        "totale": 1389.47
+      },
+      "durata_totale_mesi": 36
+    },
+    "6S": {
+      "periodo_1": {
+        "mesi": "0-12",
+        "minimo": 768.1,
+        "contingenza": 416.51,
+        "totale": 1184.62
+      },
+      "periodo_2": {
+        "mesi": "13-24",
+        "minimo": 816.11,
+        "contingenza": 442.54,
+        "totale": 1258.65
+      },
+      "periodo_3": {
+        "mesi": "25-36",
+        "minimo": 864.12,
+        "contingenza": 468.58,
+        "totale": 1332.69
+      },
+      "durata_totale_mesi": 36
+    },
+    "6": {
+      "periodo_1": {
+        "mesi": "0-12",
+        "minimo": 750.24,
+        "contingenza": 416.41,
+        "totale": 1166.65
+      },
+      "periodo_2": {
+        "mesi": "13-24",
+        "minimo": 797.13,
+        "contingenza": 442.43,
+        "totale": 1239.56
+      },
+      "periodo_3": {
+        "mesi": "25-36",
+        "minimo": 844.02,
+        "contingenza": 468.45,
+        "totale": 1312.47
+      },
+      "durata_totale_mesi": 36
+    },
+    "7": {
+      "periodo_1": {
+        "mesi": "0-12",
+        "minimo": 673.51,
+        "contingenza": 414.76,
+        "totale": 1088.27
+      },
+      "periodo_2": {
+        "mesi": "13-24",
+        "minimo": 715.6,
+        "contingenza": 440.68,
+        "totale": 1156.28
+      },
+      "periodo_3": {
+        "mesi": "25-36",
+        "minimo": 757.69,
+        "contingenza": 466.61,
+        "totale": 1224.3
+      },
+      "durata_totale_mesi": 36
+    }
+  },
+  "contributi": {
+    "dipendente": 0.0584,
+    "azienda_oltre_9_dip": {
+      "tutti_i_periodi": 0.1161,
+      "note": "10% IVS + 1,31% NASPI + 0,30% fondi formazione"
+    },
+    "azienda_fino_9_dip": {
+      "periodo_1": 0.0311,
+      "periodo_2": 0.0461,
+      "periodo_3": 0.1161,
+      "note": "Progressivo: 1,50%+1,61% / 3,00%+1,61% / 10%+1,61%"
+    }
+  },
+  "livelli_non_previsti": [
+    "QA",
+    "QB",
+    "1"
+  ],
+  "note_generali": "I livelli QA, QB e 1 non prevedono apprendistato professionalizzante"
+}

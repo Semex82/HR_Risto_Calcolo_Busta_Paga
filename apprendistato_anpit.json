@@ -1,0 +1,120 @@
+{
+  "note": "Per ogni periodo la retribuzione si calcola usando minimo+IMMC+EPMR del livello corrispondente da ccnl_anpit.json",
+  "progressioni": {
+    "B1": {
+      "periodo_1": {
+        "livello": "B1",
+        "durata_mesi": 18
+      },
+      "periodo_2": {
+        "livello": "A2",
+        "durata_mesi": 18
+      },
+      "periodo_3": {
+        "livello": "A1",
+        "durata_mesi": 0,
+        "note": "livello finale raggiunto"
+      },
+      "durata_totale_mesi": 36
+    },
+    "B2": {
+      "periodo_1": {
+        "livello": "B2",
+        "durata_mesi": 18
+      },
+      "periodo_2": {
+        "livello": "B1",
+        "durata_mesi": 18
+      },
+      "periodo_3": {
+        "livello": "A2",
+        "durata_mesi": 0,
+        "note": "livello finale raggiunto"
+      },
+      "durata_totale_mesi": 36
+    },
+    "C1": {
+      "periodo_1": {
+        "livello": "C1",
+        "durata_mesi": 18
+      },
+      "periodo_2": {
+        "livello": "B2",
+        "durata_mesi": 18
+      },
+      "periodo_3": {
+        "livello": "B1",
+        "durata_mesi": 0,
+        "note": "livello finale raggiunto"
+      },
+      "durata_totale_mesi": 36
+    },
+    "C2": {
+      "periodo_1": {
+        "livello": "C2",
+        "durata_mesi": 18
+      },
+      "periodo_2": {
+        "livello": "C1",
+        "durata_mesi": 18
+      },
+      "periodo_3": {
+        "livello": "B2",
+        "durata_mesi": 0,
+        "note": "livello finale raggiunto"
+      },
+      "durata_totale_mesi": 36
+    },
+    "D1": {
+      "periodo_1": {
+        "livello": "D1",
+        "durata_mesi": 16
+      },
+      "periodo_2": {
+        "livello": "C2",
+        "durata_mesi": 16
+      },
+      "periodo_3": {
+        "livello": "C1",
+        "durata_mesi": 0,
+        "note": "livello finale raggiunto"
+      },
+      "durata_totale_mesi": 32
+    },
+    "D2": {
+      "periodo_1": {
+        "livello": "D2",
+        "durata_mesi": 15
+      },
+      "periodo_2": {
+        "livello": "D1",
+        "durata_mesi": 15
+      },
+      "periodo_3": {
+        "livello": "C2",
+        "durata_mesi": 0,
+        "note": "livello finale raggiunto"
+      },
+      "durata_totale_mesi": 30
+    }
+  },
+  "contributi": {
+    "dipendente": 0.0584,
+    "azienda_oltre_9_dip": {
+      "tutti_i_periodi": 0.1161,
+      "note": "10% IVS + 1,31% NASPI + 0,30% fondi formazione"
+    },
+    "azienda_fino_9_dip": {
+      "periodo_1": 0.0311,
+      "periodo_2": 0.0461,
+      "periodo_3": 0.1161,
+      "note": "Progressivo: 1,50%+1,61% / 3,00%+1,61% / 10%+1,61%"
+    }
+  },
+  "livelli_non_previsti": [
+    "Quadro",
+    "A1",
+    "A2"
+  ],
+  "note_generali": "I livelli Quadro, A1 e A2 non prevedono apprendistato professionalizzante"
+}
