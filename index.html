@@ -547,6 +547,16 @@
   }
   .apprendista-grid .result-card-total { font-size: 1.35rem; }
   .apprendista-grid .detail-row { font-size: 0.74rem; }
+  .result-card.finale {
+    border-style: dashed;
+    background: #F8F8FF;
+  }
+  .finale-badge {
+    display: inline-block; font-size: 0.62rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.4px;
+    background: #E8E8F8; color: #5555AA;
+    border-radius: 4px; padding: 1px 6px; margin-top: 4px;
+  }
   @media (max-width: 720px) {
     .apprendista-grid { grid-template-columns: 1fr; }
   }
@@ -907,7 +917,7 @@ function calcFiscale(impFiscale, impAnnuo, tipo) {
 }
 
 // mans = oggetto mansione dal JSON (con livello_anpit, livello_confcommercio, label)
-function calcANPIT(mans, inpsAliq = null) {
+function calcANPIT(mans, inpsAliq = null, ordinario = false) {
   const td   = state.tipoContratto === 'TD';
   const perc = state.fulltime ? 1 : state.percParttime / 100;
   const liv  = mans.livello_anpit;
@@ -926,7 +936,7 @@ function calcANPIT(mans, inpsAliq = null) {
   const tfr      = rlt / 12 * 13 / 13.5;
   const costoTotale = rlt + inps + inail + rateo13a + rateoF + rateoP + tfr + enbicAz + welfare;
 
-  const contribDipRate = state.apprendista ? 0.0584 : 0.0929;
+  const contribDipRate = (!ordinario && state.apprendista) ? 0.0584 : 0.0929;
   const contribDip  = rlt * contribDipRate;
   const enbicDip    = td ? 1.50 : 2.50;
   const quota13a    = state.tredicesimaMensile ? rlt / 12 : 0;
@@ -946,7 +956,7 @@ function calcANPIT(mans, inpsAliq = null) {
     contribDip, enbicDip, quota13a, quotaP,
     impFiscale, impAnnuo, irpefNetta, bonusRenzi, noTax, netto,
     liv, mansione: mans.label, epmr,
-    inpsLabel, contribDipLabel: state.apprendista ? '5,84%' : '9,29%',
+    inpsLabel, contribDipLabel: (!ordinario && state.apprendista) ? '5,84%' : '9,29%',
   };
 }
 
@@ -1056,7 +1066,7 @@ function calcApprendistoANPIT(mans) {
     ? [contrib.azienda_oltre_9_dip.tutti_i_periodi, contrib.azienda_oltre_9_dip.tutti_i_periodi]
     : [contrib.azienda_fino_9_dip.periodo_1,        contrib.azienda_fino_9_dip.periodo_2];
 
-  return ['periodo_1', 'periodo_2']
+  const periodiAttivi = ['periodo_1', 'periodo_2']
     .filter(pk => prog[pk].durata_mesi > 0)
     .map((pk, i) => {
       const pd       = prog[pk];
@@ -1092,8 +1102,19 @@ function calcApprendistoANPIT(mans) {
         contribDipLabel: '5,84%',
         durataMesi: pd.durata_mesi,
         livLabel: pd.livello,
+        isFinale: false,
       };
     });
+
+  // 3rd column: livello finale con tariffe ordinarie
+  const finaleLiv = prog.periodo_3.livello;
+  const mansFinale = Object.assign({}, mans, { livello_anpit: finaleLiv });
+  const rFinale = calcANPIT(mansFinale, null, true);
+  rFinale.isFinale = true;
+  rFinale.durataMesi = 0;
+  rFinale.livLabel = finaleLiv;
+
+  return [...periodiAttivi, rFinale];
 }
 
 function calcApprendistoConfcommercio(mans) {
@@ -1155,27 +1176,18 @@ function getInpsAliquote() {
     : [0.0311, 0.0461, 0.1161];
 }
 
-function buildResultCards(r, isAnpit, mul, perLabel) {
+function buildAziendaCard(r, isAnpit, mul, perLabel) {
   const costoRows = buildCostoRows(r, isAnpit);
-  const nettoRows = buildNettoRows(r, isAnpit);
   const costoRowsHTML = costoRows.map(row => `
       <div class="detail-row">
         <span class="lbl">${row.l}</span>
         <span class="val">${fmt(row.v * mul)}</span>
       </div>`).join('');
-  const nettoRowsHTML = nettoRows.map(row => {
-    const displayVal = row.nomul ? row.v : row.v * mul;
-    const prefix = row.cls === 'neg' ? '−\u00A0' : '';
-    return `<div class="detail-row ${row.cls||''}">
-        <span class="lbl">${row.l}</span>
-        <span class="val">${row.v === 0 ? '€\u00A00,00' : prefix + fmt(displayVal)}</span>
-      </div>`;
-  }).join('');
-  return `
-    <div class="result-card azienda">
+  const finaleClass = r.isFinale ? ' finale' : '';
+  return `<div class="result-card azienda${finaleClass}">
       <div class="result-card-header">
         <div>
-          <div class="result-card-label">Costo Azienda</div>
+          <div class="result-card-label">Costo Azienda${r.isFinale ? '<span class="finale-badge">contratto ordinario</span>' : ''}</div>
           <div class="result-card-total">${fmt(r.costoTotale * mul)}</div>
         </div>
         <div class="result-card-sublabel">${perLabel}</div>
@@ -1187,11 +1199,24 @@ function buildResultCards(r, isAnpit, mul, perLabel) {
           <span class="val">${fmt(r.costoTotale * mul)}</span>
         </div>
       </div>
-    </div>
-    <div class="result-card netto">
+    </div>`;
+}
+
+function buildNettoCard(r, isAnpit, mul, perLabel) {
+  const nettoRows = buildNettoRows(r, isAnpit);
+  const nettoRowsHTML = nettoRows.map(row => {
+    const displayVal = row.nomul ? row.v : row.v * mul;
+    const prefix = row.cls === 'neg' ? '−\u00A0' : '';
+    return `<div class="detail-row ${row.cls||''}">
+        <span class="lbl">${row.l}</span>
+        <span class="val">${row.v === 0 ? '€\u00A00,00' : prefix + fmt(displayVal)}</span>
+      </div>`;
+  }).join('');
+  const finaleClass = r.isFinale ? ' finale' : '';
+  return `<div class="result-card netto${finaleClass}">
       <div class="result-card-header">
         <div>
-          <div class="result-card-label">Netto in Busta</div>
+          <div class="result-card-label">Netto in Busta${r.isFinale ? '<span class="finale-badge">contratto ordinario</span>' : ''}</div>
           <div class="result-card-total">${fmt(r.netto * mul)}</div>
         </div>
         <div class="result-card-sublabel">${perLabel}</div>
@@ -1204,6 +1229,10 @@ function buildResultCards(r, isAnpit, mul, perLabel) {
         </div>
       </div>
     </div>`;
+}
+
+function buildResultCards(r, isAnpit, mul, perLabel) {
+  return buildAziendaCard(r, isAnpit, mul, perLabel) + buildNettoCard(r, isAnpit, mul, perLabel);
 }
 
 // ─── TOGGLE ACCORDION ─────────────────────────────────────────────────────────
@@ -1262,7 +1291,8 @@ function renderRisultati() {
           Il livello selezionato non prevede contratto di apprendistato
         </div>`;
       } else {
-        badgesHTML = periodi.map((r, i) => `
+        const periodiAttivi = periodi.filter(r => !r.isFinale);
+        badgesHTML = periodiAttivi.map((r, i) => `
           <div class="total-badge azienda-badge">
             <span class="badge-label">Costo az. periodo ${i + 1}</span>
             <span class="badge-value">${fmt(r.costoTotale * mul)}</span>
@@ -1273,18 +1303,23 @@ function renderRisultati() {
             <span class="badge-value">${fmt(periodi[0].netto * mul)}</span>
             <span class="badge-period">${perLabel}</span>
           </div>`;
-        bodyHTML = `<div class="apprendista-grid">${
-          periodi.map((r, i) => {
-            const sub = isAnpit
-              ? `${r.durataMesi} mesi · Liv. ${r.livLabel}`
-              : `${r.durataMesi} mesi · ${r.livLabel}`;
-            return `
-              <div class="anno-col">
-                <div class="anno-header">Periodo ${i + 1}<span class="anno-subheader">${sub}</span></div>
-                ${buildResultCards(r, isAnpit, mul, perLabel)}
-              </div>`;
-          }).join('')
-        }</div>`;
+
+        const numCols = periodi.length;
+        const headers = periodi.map((r, i) => {
+          if (r.isFinale) {
+            return `<div class="anno-header">Livello finale<span class="anno-subheader">Liv. ${r.livLabel} · ordinario</span></div>`;
+          }
+          const sub = isAnpit
+            ? `${r.durataMesi} mesi · Liv. ${r.livLabel}`
+            : `${r.durataMesi} mesi · ${r.livLabel}`;
+          return `<div class="anno-header">Periodo ${i + 1}<span class="anno-subheader">${sub}</span></div>`;
+        }).join('');
+        const costoCards = periodi.map(r => buildAziendaCard(r, isAnpit, mul, perLabel)).join('');
+        const nettoCards = periodi.map(r => buildNettoCard(r, isAnpit, mul, perLabel)).join('');
+
+        bodyHTML = `<div class="apprendista-grid" style="grid-template-columns:repeat(${numCols},1fr)">
+          ${headers}${costoCards}${nettoCards}
+        </div>`;
       }
     } else {
       const r = isAnpit ? calcANPIT(m) : calcConfcommercio(m);
