@@ -535,6 +535,7 @@
     margin-top: 14px;
   }
   .anno-col { display: flex; flex-direction: column; gap: 8px; }
+  .anno-col .results-grid { flex: 1; margin-top: 0; }
   .anno-header {
     text-align: center; font-size: 0.72rem; font-weight: 700;
     text-transform: uppercase; letter-spacing: 0.5px;
@@ -1279,7 +1280,7 @@ function calcApprendistoConfcommercio(mans) {
       netto: nettoMensile * durataMesi,
       contribDipLabel: '5,84%',
       durataMesi, livLabel: pd.mesi,
-      apprendistato: true,
+      annoIndex: i + 1, apprendistato: true,
     };
   });
 }
@@ -1435,19 +1436,18 @@ function renderRisultati() {
         badgesHTML = `<div class="badge-row">${costoBadges}</div><div class="badge-row">${nettoBadges}</div>`;
 
         const numCols = periodi.length;
-        const headers = periodi.map((r, i) => {
-          const titolo = r.annoIndex ? `Anno ${r.annoIndex}` : `Periodo ${i + 1}`;
-          const durLbl = r.durataMesi < 12 ? `${r.durataMesi} mesi` : '12 mesi';
-          const sub    = r.annoIndex
-            ? `${r.livLabel} · ${durLbl}`
-            : `${r.durataMesi} mesi · ${r.livLabel}`;
-          return `<div class="anno-header">${titolo}<span class="anno-subheader">${sub}</span></div>`;
-        }).join('');
-        const costoCards = periodi.map(r => buildAziendaCard(r, isAnpit, mul, perLabel)).join('');
-        const nettoCards = periodi.map(r => buildNettoCard(r, isAnpit, mul, perLabel)).join('');
-
         bodyHTML = `<div class="apprendista-grid" style="grid-template-columns:repeat(${numCols},1fr)">
-          ${headers}${costoCards}${nettoCards}
+          ${periodi.map((r, i) => {
+            const titolo = `Anno ${r.annoIndex}`;
+            const durLbl = r.durataMesi < 12 ? `${r.durataMesi} mesi` : '12 mesi';
+            const sub    = r.annoIndex <= 3 && isAnpit
+              ? `${r.livLabel} · ${durLbl}`
+              : `${r.durataMesi} mesi · ${r.livLabel}`;
+            return `<div class="anno-col">
+              <div class="anno-header">${titolo}<span class="anno-subheader">${sub}</span></div>
+              <div class="results-grid">${buildAziendaCard(r, isAnpit, mul, perLabel)}${buildNettoCard(r, isAnpit, mul, perLabel)}</div>
+            </div>`;
+          }).join('')}
         </div>`;
       }
     } else {
