@@ -1410,44 +1410,40 @@ function renderRisultati() {
           L'apprendistato non è applicabile alla mansione selezionata: il livello contrattuale non rientra nelle tabelle previste.
         </div>`;
       } else {
-        const appBadgePrd = (r) => mul === 1 ? 'media mensile' : `${r.durataMesi} mesi`;
+        const appBadgePrd = (r) => mul === 1 ? 'media/mese' : `${r.durataMesi} mesi`;
         const appBadgeVal = (v, dm) => mul === 1 ? v / dm : v;
-        const colLabel    = (r, i) => r.annoIndex ? `Anno ${r.annoIndex}` : `Periodo ${i + 1}`;
-        const costoBadges = periodi.map((r, i) => {
-          const lbl = colLabel(r, i);
+        const costoBadges = periodi.map(r => {
           const val = r.apprendistato ? appBadgeVal(r.costoTotale, r.durataMesi) : r.costoTotale * mul;
           const prd = r.apprendistato ? appBadgePrd(r) : perLabel;
           return `<div class="total-badge azienda-badge">
-            <span class="badge-label">Costo az. ${lbl}</span>
+            <span class="badge-label">Az. Anno ${r.annoIndex}</span>
             <span class="badge-value">${fmt(val)}</span>
             <span class="badge-period">${prd}</span>
           </div>`;
         }).join('');
-        const nettoBadges = periodi.map((r, i) => {
-          const lbl = colLabel(r, i);
+        const nettoBadges = periodi.map(r => {
           const val = r.apprendistato ? appBadgeVal(r.netto, r.durataMesi) : r.netto * mul;
           const prd = r.apprendistato ? appBadgePrd(r) : perLabel;
           return `<div class="total-badge netto-badge">
-            <span class="badge-label">Netto ${lbl}</span>
+            <span class="badge-label">Net. Anno ${r.annoIndex}</span>
             <span class="badge-value">${fmt(val)}</span>
             <span class="badge-period">${prd}</span>
           </div>`;
         }).join('');
-        badgesHTML = `<div class="badge-row">${costoBadges}</div><div class="badge-row">${nettoBadges}</div>`;
+        const badgeGridStyle = `display:grid;grid-template-columns:repeat(${periodi.length},1fr);gap:8px;width:100%`;
+        badgesHTML = `<div style="${badgeGridStyle}">${costoBadges}${nettoBadges}</div>`;
 
         const numCols = periodi.length;
+        const headers = periodi.map(r => {
+          const titolo = `Anno ${r.annoIndex}`;
+          const durLbl = r.durataMesi < 12 ? `${r.durataMesi} mesi` : '12 mesi';
+          const sub    = isAnpit ? `${r.livLabel} · ${durLbl}` : `${r.durataMesi} mesi · ${r.livLabel}`;
+          return `<div class="anno-header">${titolo}<span class="anno-subheader">${sub}</span></div>`;
+        }).join('');
+        const costoCards = periodi.map(r => buildAziendaCard(r, isAnpit, mul, perLabel)).join('');
+        const nettoCards = periodi.map(r => buildNettoCard(r, isAnpit, mul, perLabel)).join('');
         bodyHTML = `<div class="apprendista-grid" style="grid-template-columns:repeat(${numCols},1fr)">
-          ${periodi.map((r, i) => {
-            const titolo = `Anno ${r.annoIndex}`;
-            const durLbl = r.durataMesi < 12 ? `${r.durataMesi} mesi` : '12 mesi';
-            const sub    = r.annoIndex <= 3 && isAnpit
-              ? `${r.livLabel} · ${durLbl}`
-              : `${r.durataMesi} mesi · ${r.livLabel}`;
-            return `<div class="anno-col">
-              <div class="anno-header">${titolo}<span class="anno-subheader">${sub}</span></div>
-              <div class="results-grid">${buildAziendaCard(r, isAnpit, mul, perLabel)}${buildNettoCard(r, isAnpit, mul, perLabel)}</div>
-            </div>`;
-          }).join('')}
+          ${headers}${costoCards}${nettoCards}
         </div>`;
       }
     } else {
