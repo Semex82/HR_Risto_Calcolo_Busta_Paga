@@ -1017,24 +1017,24 @@ function buildCostoRows(r, isAnpit) {
     const inpsRows = r.inpsRighe.map(riga => ({ l: riga.label, v: riga.importo }));
     const inailRow = { l: 'INAIL: € 0,00 (escluso in apprendistato)', v: 0 };
     return isAnpit ? [
-      { l: `Retribuzione Lorda (RLT × ${r.durataMesi} mesi)`, v: r.rltTotale },
+      { l: 'Retribuzione Lorda (RLT)', v: r.rltTotale },
       ...inpsRows,
       inailRow,
-      { l: 'Rateo 13ª (periodo)',     v: r.rateo13a },
-      { l: 'Rateo ferie (periodo)',    v: r.rateoF },
-      { l: 'Rateo permessi (periodo)', v: r.rateoP },
-      { l: 'TFR (periodo)',            v: r.tfr },
-      { l: 'ENBIC azienda (periodo)', v: r.enbicAz },
-      { l: 'Welfare (periodo)',        v: r.welfare },
+      { l: 'Rateo 13ª',    v: r.rateo13a },
+      { l: 'Rateo ferie',  v: r.rateoF },
+      { l: 'Rateo permessi', v: r.rateoP },
+      { l: 'TFR',          v: r.tfr },
+      { l: 'ENBIC azienda', v: r.enbicAz },
+      { l: 'Welfare',      v: r.welfare },
     ] : [
-      { l: `Retribuzione Lorda (RLT × ${r.durataMesi} mesi)`, v: r.rltTotale },
+      { l: 'Retribuzione Lorda (RLT)', v: r.rltTotale },
       ...inpsRows,
       inailRow,
-      { l: 'Rateo 13ª+14ª (periodo)', v: r.rateo1314 },
-      { l: 'Rateo ferie (periodo)',    v: r.rateoF },
-      { l: 'Rateo permessi (periodo)', v: r.rateoP },
-      { l: 'TFR (periodo)',            v: r.tfr },
-      ...(r.fondoEST > 0 ? [{ l: 'Fondo EST (periodo)', v: r.fondoEST }] : []),
+      { l: 'Rateo 13ª+14ª', v: r.rateo1314 },
+      { l: 'Rateo ferie',   v: r.rateoF },
+      { l: 'Rateo permessi', v: r.rateoP },
+      { l: 'TFR',           v: r.tfr },
+      ...(r.fondoEST > 0 ? [{ l: 'Fondo EST', v: r.fondoEST }] : []),
     ];
   }
   const inpsLbl = r.inpsLabel || (state.tipoContratto==='TI' ? '30%' : '31,4%');
@@ -1069,8 +1069,8 @@ function buildNettoRows(r, isAnpit) {
         : (r.quota1314 > 0 ? [{ l: `+ Quota 13ª+14ª (periodo)`, v: r.quota1314 }] : [])
       ),
       ...(r.quotaP > 0 ? [{ l: `+ Quota permessi (periodo)`, v: r.quotaP }] : []),
-      { l: `− Contributi dipendente (5,84% × ${r.durataMesi} mesi)`, v: r.contribDip },
-      ...(isAnpit ? [{ l: `− ENBIC dipendente (periodo)`, v: r.enbicDip }] : []),
+      { l: '− Contributi dipendente (5,84%)', v: r.contribDip },
+      ...(isAnpit ? [{ l: '− ENBIC dipendente', v: r.enbicDip }] : []),
       { l: 'Netto mensile in busta', v: r.nettoMensile, nomul: true },
     ];
   }
@@ -1107,88 +1107,110 @@ function calcApprendistoANPIT(mans) {
   const td      = state.tipoContratto === 'TD';
   const dipAliq = appData.contributi.dipendente;
 
-  let cumulativeMesi = 0;
+  // Costruisce timeline globale (livello, mese_inizio, mese_fine)
+  const timeline = [];
+  let cumMese = 0;
+  for (const pk of ['periodo_1', 'periodo_2']) {
+    const pd = prog[pk];
+    if (!pd || pd.durata_mesi === 0) continue;
+    timeline.push({ livello: pd.livello, gs: cumMese + 1, ge: cumMese + pd.durata_mesi });
+    cumMese += pd.durata_mesi;
+  }
+  const totalMesi = cumMese;
 
-  return ['periodo_1', 'periodo_2']
-    .filter(pk => prog[pk].durata_mesi > 0)
-    .map(pk => {
-      const pd          = prog[pk];
-      const dLiv        = DATA.anpit.livelli[pd.livello];
-      const epmr        = (DATA.anpit.epmr[pd.livello] || {})[state.regione] || 0;
-      const rlt         = (dLiv.minimo + dLiv.immc + epmr) * perc;
-      const durataMesi  = pd.durata_mesi;
-      const periodStart = cumulativeMesi + 1;
-      cumulativeMesi   += durataMesi;
-      const periodEnd   = cumulativeMesi;
+  const BRACKETS = [
+    { gs: 1,  ge: 12,       rate: 0.0311, rl: '3,11%' },
+    { gs: 13, ge: 24,       rate: 0.0461, rl: '4,61%' },
+    { gs: 25, ge: Infinity, rate: 0.1161, rl: '11,61%' },
+  ];
 
-      // INAIL = 0 per apprendistato
-      const inailTotale = 0;
+  const anni = [];
+  for (let i = 0; i < 3; i++) {
+    const annoGS = i * 12 + 1;
+    if (annoGS > totalMesi) break;
+    const annoGE     = Math.min((i + 1) * 12, totalMesi);
+    const durataMesi = annoGE - annoGS + 1;
 
-      // INPS con step da 12 mesi (brackets globali)
-      let inpsRighe = [];
-      let inpsTotale = 0;
+    // Segmenti di livello che cadono in quest'anno
+    const segments = [];
+    for (const tl of timeline) {
+      const os = Math.max(annoGS, tl.gs);
+      const oe = Math.min(annoGE, tl.ge);
+      if (os > oe) continue;
+      segments.push({ livello: tl.livello, gs: os, ge: oe, mesi: oe - os + 1 });
+    }
+    if (segments.length === 0) break;
+
+    let rltTotale = 0;
+    let inpsTotale = 0;
+    const inpsRighe = [];
+    const segInfos  = [];
+
+    for (const seg of segments) {
+      const dLiv = DATA.anpit.livelli[seg.livello];
+      const epmr = (DATA.anpit.epmr[seg.livello] || {})[state.regione] || 0;
+      const rlt  = (dLiv.minimo + dLiv.immc + epmr) * perc;
+      rltTotale += rlt * seg.mesi;
+
       if (state.piuDiNoveDipendenti) {
-        const importo = rlt * 0.1161 * durataMesi;
-        inpsRighe = [{ label: `INPS 11,61% × ${durataMesi} mesi`, importo }];
-        inpsTotale = importo;
+        const importo = rlt * 0.1161 * seg.mesi;
+        inpsTotale += importo;
+        inpsRighe.push({ label: `${seg.mesi}m ${seg.livello}: INPS 11,61%`, importo });
       } else {
-        const brackets = [
-          { gs: 1,  ge: 12,       rate: 0.0311, rl: '3,11%' },
-          { gs: 13, ge: 24,       rate: 0.0461, rl: '4,61%' },
-          { gs: 25, ge: Infinity, rate: 0.1161, rl: '11,61%' },
-        ];
-        for (const b of brackets) {
-          const os = Math.max(periodStart, b.gs);
-          const oe = Math.min(periodEnd, b.ge);
-          if (os > oe) continue;
-          const mesi    = oe - os + 1;
-          const relS    = os - periodStart + 1;
-          const relE    = oe - periodStart + 1;
-          const importo = rlt * b.rate * mesi;
-          inpsRighe.push({ label: `Mesi ${relS}-${relE}: INPS ${b.rl}`, importo });
+        for (const b of BRACKETS) {
+          const bs = Math.max(seg.gs, b.gs);
+          const be = Math.min(seg.ge, b.ge);
+          if (bs > be) continue;
+          const m = be - bs + 1;
+          const importo = rlt * b.rate * m;
           inpsTotale += importo;
+          inpsRighe.push({ label: `${m}m ${seg.livello}: INPS ${b.rl}`, importo });
         }
       }
-      const inpsMedia = inpsTotale / durataMesi;
+      segInfos.push({ livello: seg.livello, mesi: seg.mesi });
+    }
 
-      // Costo azienda — totali di periodo
-      const rltTotale   = rlt * durataMesi;
-      const enbicAz     = (td ? 4.50 : 21.50) * durataMesi;
-      const welfare     = 20 * durataMesi;
-      const rateo13a    = (rlt + inpsMedia) / 12 * durataMesi;
-      const rateoF      = (rlt + inpsMedia) / 173 * 160 / 12 * durataMesi;
-      const rateoP      = (rlt + inpsMedia) / 173 * 48  / 12 * durataMesi;
-      const tfr         = rlt / 12 * 13 / 13.5 * durataMesi;
-      const costoTotale = rltTotale + inpsTotale + inailTotale + rateo13a + rateoF + rateoP + tfr + enbicAz + welfare;
+    const rltMedia  = rltTotale / durataMesi;
+    const inpsMedia = inpsTotale / durataMesi;
+    const enbicAz   = (td ? 4.50 : 21.50) * durataMesi;
+    const welfare   = 20 * durataMesi;
+    const rateo13a  = (rltMedia + inpsMedia) / 12 * durataMesi;
+    const rateoF    = (rltMedia + inpsMedia) / 173 * 160 / 12 * durataMesi;
+    const rateoP    = (rltMedia + inpsMedia) / 173 * 48  / 12 * durataMesi;
+    const tfr       = rltMedia / 12 * 13 / 13.5 * durataMesi;
+    const costoTotale = rltTotale + inpsTotale + rateo13a + rateoF + rateoP + tfr + enbicAz + welfare;
 
-      // Netto — calcolo mensile, poi totale periodo
-      const contribDipM = rlt * dipAliq;
-      const enbicDipM   = td ? 1.50 : 2.50;
-      const quota13a_m  = state.tredicesimaMensile ? rlt / 12 : 0;
-      const quotaP_m    = state.permessiMensili    ? rlt / 173 * 48 / 12 : 0;
-      const impFiscale  = rlt + quota13a_m + quotaP_m - contribDipM - enbicDipM;
-      const impAnnuo    = impFiscale * (state.tredicesimaMensile ? 12 : 13);
-      const { noTax, irpefNetta, bonusRenzi } = calcFiscale(impFiscale, impAnnuo, state.tipoContratto);
-      const nettoMensile = noTax ? impFiscale : impFiscale - irpefNetta + bonusRenzi;
+    const contribDipM = rltMedia * dipAliq;
+    const enbicDipM   = td ? 1.50 : 2.50;
+    const quota13a_m  = state.tredicesimaMensile ? rltMedia / 12 : 0;
+    const quotaP_m    = state.permessiMensili    ? rltMedia / 173 * 48 / 12 : 0;
+    const impFiscale  = rltMedia + quota13a_m + quotaP_m - contribDipM - enbicDipM;
+    const impAnnuo    = impFiscale * (state.tredicesimaMensile ? 12 : 13);
+    const { noTax, irpefNetta, bonusRenzi } = calcFiscale(impFiscale, impAnnuo, state.tipoContratto);
+    const nettoMensile = noTax ? impFiscale : impFiscale - irpefNetta + bonusRenzi;
 
-      return {
-        rlt, rltTotale,
-        inail: inailTotale, inpsRighe, inpsTotale, inpsMedia,
-        enbicAz, welfare, rateo13a, rateoF, rateoP, tfr, costoTotale,
-        contribDip: contribDipM * durataMesi,
-        enbicDip:   enbicDipM   * durataMesi,
-        quota13a:   quota13a_m  * durataMesi,
-        quotaP:     quotaP_m    * durataMesi,
-        impFiscale, impAnnuo,
-        irpefNetta: irpefNetta  * durataMesi,
-        bonusRenzi: bonusRenzi  * durataMesi,
-        noTax, nettoMensile,
-        netto: nettoMensile * durataMesi,
-        contribDipLabel: '5,84%',
-        durataMesi, livLabel: pd.livello,
-        isFinale: false, apprendistato: true,
-      };
+    const livLabel = segInfos.map(s => `${s.mesi}m ${s.livello}`).join(' + ');
+
+    anni.push({
+      rlt: rltMedia, rltTotale,
+      inail: 0, inpsRighe, inpsTotale, inpsMedia,
+      enbicAz, welfare, rateo13a, rateoF, rateoP, tfr, costoTotale,
+      contribDip: contribDipM * durataMesi,
+      enbicDip:   enbicDipM   * durataMesi,
+      quota13a:   quota13a_m  * durataMesi,
+      quotaP:     quotaP_m    * durataMesi,
+      impFiscale, impAnnuo,
+      irpefNetta: irpefNetta  * durataMesi,
+      bonusRenzi: bonusRenzi  * durataMesi,
+      noTax, nettoMensile,
+      netto: nettoMensile * durataMesi,
+      contribDipLabel: '5,84%',
+      durataMesi, livLabel, annoIndex: i + 1,
+      isFinale: false, apprendistato: true,
     });
+  }
+
+  return anni.length > 0 ? anni : null;
 }
 
 function calcApprendistoConfcommercio(mans) {
@@ -1269,8 +1291,8 @@ function getInpsAliquote() {
 }
 
 function buildAziendaCard(r, isAnpit, mul, perLabel) {
-  const actualMul      = r.apprendistato ? 1 : mul;
-  const actualPerLabel = r.apprendistato ? `${r.durataMesi} mesi` : perLabel;
+  const actualMul      = r.apprendistato ? (mul === 1 ? 1/r.durataMesi : 1) : mul;
+  const actualPerLabel = r.apprendistato ? (mul === 1 ? 'media mensile' : `${r.durataMesi} mesi`) : perLabel;
   const costoRows      = buildCostoRows(r, isAnpit);
   const costoRowsHTML  = costoRows.map(row => `
       <div class="detail-row">
@@ -1289,7 +1311,7 @@ function buildAziendaCard(r, isAnpit, mul, perLabel) {
       <div class="result-card-body">
         <div class="detail-rows">${costoRowsHTML}</div>
         <div class="detail-row total">
-          <span class="lbl">TOTALE COSTO${r.apprendistato ? ' PERIODO' : ''}</span>
+          <span class="lbl">TOTALE COSTO</span>
           <span class="val">${fmt(r.costoTotale * actualMul)}</span>
         </div>
       </div>
@@ -1297,8 +1319,8 @@ function buildAziendaCard(r, isAnpit, mul, perLabel) {
 }
 
 function buildNettoCard(r, isAnpit, mul, perLabel) {
-  const actualMul      = r.apprendistato ? 1 : mul;
-  const actualPerLabel = r.apprendistato ? `${r.durataMesi} mesi` : perLabel;
+  const actualMul      = r.apprendistato ? (mul === 1 ? 1/r.durataMesi : 1) : mul;
+  const actualPerLabel = r.apprendistato ? (mul === 1 ? 'media mensile' : `${r.durataMesi} mesi`) : perLabel;
   const nettoRows      = buildNettoRows(r, isAnpit);
   const nettoRowsHTML  = nettoRows.map(row => {
     const displayVal = row.nomul ? row.v : row.v * actualMul;
@@ -1320,7 +1342,7 @@ function buildNettoCard(r, isAnpit, mul, perLabel) {
       <div class="result-card-body">
         <div class="detail-rows">${nettoRowsHTML}</div>
         <div class="detail-row total">
-          <span class="lbl">NETTO IN BUSTA${r.apprendistato ? ' PERIODO' : ''}</span>
+          <span class="lbl">NETTO IN BUSTA</span>
           <span class="val">${fmt(r.netto * actualMul)}</span>
         </div>
       </div>
@@ -1387,22 +1409,25 @@ function renderRisultati() {
           L'apprendistato non è applicabile alla mansione selezionata: il livello contrattuale non rientra nelle tabelle previste.
         </div>`;
       } else {
+        const appBadgePrd = (r) => mul === 1 ? 'media mensile' : `${r.durataMesi} mesi`;
+        const appBadgeVal = (v, dm) => mul === 1 ? v / dm : v;
+        const colLabel    = (r, i) => r.annoIndex ? `Anno ${r.annoIndex}` : `Periodo ${i + 1}`;
         const costoBadges = periodi.map((r, i) => {
-          const lbl = r.isFinale ? 'Livello finale' : `Costo az. P${i + 1}`;
-          const val = r.apprendistato ? r.costoTotale : r.costoTotale * mul;
-          const prd = r.apprendistato ? `tot. ${r.durataMesi} mesi` : perLabel;
+          const lbl = colLabel(r, i);
+          const val = r.apprendistato ? appBadgeVal(r.costoTotale, r.durataMesi) : r.costoTotale * mul;
+          const prd = r.apprendistato ? appBadgePrd(r) : perLabel;
           return `<div class="total-badge azienda-badge">
-            <span class="badge-label">${lbl}</span>
+            <span class="badge-label">Costo az. ${lbl}</span>
             <span class="badge-value">${fmt(val)}</span>
             <span class="badge-period">${prd}</span>
           </div>`;
         }).join('');
         const nettoBadges = periodi.map((r, i) => {
-          const lbl = r.isFinale ? 'Netto finale' : `Netto P${i + 1}`;
-          const val = r.apprendistato ? r.netto : r.netto * mul;
-          const prd = r.apprendistato ? `tot. ${r.durataMesi} mesi` : perLabel;
+          const lbl = colLabel(r, i);
+          const val = r.apprendistato ? appBadgeVal(r.netto, r.durataMesi) : r.netto * mul;
+          const prd = r.apprendistato ? appBadgePrd(r) : perLabel;
           return `<div class="total-badge netto-badge">
-            <span class="badge-label">${lbl}</span>
+            <span class="badge-label">Netto ${lbl}</span>
             <span class="badge-value">${fmt(val)}</span>
             <span class="badge-period">${prd}</span>
           </div>`;
@@ -1411,13 +1436,12 @@ function renderRisultati() {
 
         const numCols = periodi.length;
         const headers = periodi.map((r, i) => {
-          if (r.isFinale) {
-            return `<div class="anno-header">Livello finale<span class="anno-subheader">Liv. ${r.livLabel} · ordinario</span></div>`;
-          }
-          const sub = isAnpit
-            ? `${r.durataMesi} mesi · Liv. ${r.livLabel}`
+          const titolo = r.annoIndex ? `Anno ${r.annoIndex}` : `Periodo ${i + 1}`;
+          const durLbl = r.durataMesi < 12 ? `${r.durataMesi} mesi` : '12 mesi';
+          const sub    = r.annoIndex
+            ? `${r.livLabel} · ${durLbl}`
             : `${r.durataMesi} mesi · ${r.livLabel}`;
-          return `<div class="anno-header">Periodo ${i + 1}<span class="anno-subheader">${sub}</span></div>`;
+          return `<div class="anno-header">${titolo}<span class="anno-subheader">${sub}</span></div>`;
         }).join('');
         const costoCards = periodi.map(r => buildAziendaCard(r, isAnpit, mul, perLabel)).join('');
         const nettoCards = periodi.map(r => buildNettoCard(r, isAnpit, mul, perLabel)).join('');
