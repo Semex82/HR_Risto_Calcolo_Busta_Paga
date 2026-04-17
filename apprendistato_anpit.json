@@ -1,7 +1,7 @@
 {
-  "note": "Per ogni periodo la retribuzione si calcola usando minimo+IMMC+EPMR del livello corrispondente da ccnl_anpit.json",
-  "progressioni": {
-    "B1": {
+  "note": "La chiave è il livello FINALE (quello della mansione). I periodi indicano i livelli retributivi da usare durante l'apprendistato.",
+  "lookup_per_livello_finale": {
+    "A1": {
       "periodo_1": {
         "livello": "B1",
         "durata_mesi": 18
@@ -10,14 +10,9 @@
         "livello": "A2",
         "durata_mesi": 18
       },
-      "periodo_3": {
-        "livello": "A1",
-        "durata_mesi": 0,
-        "note": "livello finale raggiunto"
-      },
       "durata_totale_mesi": 36
     },
-    "B2": {
+    "A2": {
       "periodo_1": {
         "livello": "B2",
         "durata_mesi": 18
@@ -26,14 +21,9 @@
         "livello": "B1",
         "durata_mesi": 18
       },
-      "periodo_3": {
-        "livello": "A2",
-        "durata_mesi": 0,
-        "note": "livello finale raggiunto"
-      },
       "durata_totale_mesi": 36
     },
-    "C1": {
+    "B1": {
       "periodo_1": {
         "livello": "C1",
         "durata_mesi": 18
@@ -42,14 +32,9 @@
         "livello": "B2",
         "durata_mesi": 18
       },
-      "periodo_3": {
-        "livello": "B1",
-        "durata_mesi": 0,
-        "note": "livello finale raggiunto"
-      },
       "durata_totale_mesi": 36
     },
-    "C2": {
+    "B2": {
       "periodo_1": {
         "livello": "C2",
         "durata_mesi": 18
@@ -58,14 +43,9 @@
         "livello": "C1",
         "durata_mesi": 18
       },
-      "periodo_3": {
-        "livello": "B2",
-        "durata_mesi": 0,
-        "note": "livello finale raggiunto"
-      },
       "durata_totale_mesi": 36
     },
-    "D1": {
+    "C1": {
       "periodo_1": {
         "livello": "D1",
         "durata_mesi": 16
@@ -74,14 +54,9 @@
         "livello": "C2",
         "durata_mesi": 16
       },
-      "periodo_3": {
-        "livello": "C1",
-        "durata_mesi": 0,
-        "note": "livello finale raggiunto"
-      },
       "durata_totale_mesi": 32
     },
-    "D2": {
+    "C2": {
       "periodo_1": {
         "livello": "D2",
         "durata_mesi": 15
@@ -90,31 +65,55 @@
         "livello": "D1",
         "durata_mesi": 15
       },
-      "periodo_3": {
-        "livello": "C2",
-        "durata_mesi": 0,
-        "note": "livello finale raggiunto"
-      },
       "durata_totale_mesi": 30
     }
   },
+  "livelli_non_disponibili": [
+    "Quadro",
+    "A1_come_partenza",
+    "D1",
+    "D2"
+  ],
+  "note_non_disponibili": "D1 e D2 come livello finale non sono disponibili (non esiste livello inferiore). Quadro, A1, A2 come livello finale sono disponibili.",
   "contributi": {
     "dipendente": 0.0584,
+    "inail": 0,
     "azienda_oltre_9_dip": {
       "tutti_i_periodi": 0.1161,
-      "note": "10% IVS + 1,31% NASPI + 0,30% fondi formazione"
+      "note": "10% IVS + 1,31% NASPI + 0,30% fondi formazione — fisso per tutti i mesi"
     },
     "azienda_fino_9_dip": {
-      "periodo_1": 0.0311,
-      "periodo_2": 0.0461,
-      "periodo_3": 0.1161,
-      "note": "Progressivo: 1,50%+1,61% / 3,00%+1,61% / 10%+1,61%"
+      "step_mesi": 12,
+      "aliquote_progressive": [
+        0.0311,
+        0.0461,
+        0.1161
+      ],
+      "note": "Cambiano ogni 12 mesi: 3,11% / 4,61% / 11,61%",
+      "dettaglio_periodo_1_18mesi": {
+        "mesi_1_12": 0.0311,
+        "mesi_13_18": 0.0461
+      },
+      "dettaglio_periodo_2_18mesi": {
+        "mesi_1_6": 0.0461,
+        "mesi_7_18": 0.1161
+      },
+      "dettaglio_periodo_1_16mesi": {
+        "mesi_1_12": 0.0311,
+        "mesi_13_16": 0.0461
+      },
+      "dettaglio_periodo_2_16mesi": {
+        "mesi_1_4": 0.0461,
+        "mesi_5_16": 0.1161
+      },
+      "dettaglio_periodo_1_15mesi": {
+        "mesi_1_12": 0.0311,
+        "mesi_13_15": 0.0461
+      },
+      "dettaglio_periodo_2_15mesi": {
+        "mesi_1_3": 0.0461,
+        "mesi_4_15": 0.1161
+      }
     }
-  },
-  "livelli_non_previsti": [
-    "Quadro",
-    "A1",
-    "A2"
-  ],
-  "note_generali": "I livelli Quadro, A1 e A2 non prevedono apprendistato professionalizzante"
+  }
 }
